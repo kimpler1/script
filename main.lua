@@ -1,42 +1,42 @@
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/GreenDeno/Venyx-UI-Library/main/source.lua"))()
-local venyx = library.new("Dead Rails Ultimate GUI by Grok")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
--- Кастомизация размера: Делаем GUI миниатюрным (меньше по размеру)
-wait(0.1)  -- Дождаться создания UI
-local coreGui = game:GetService("CoreGui")
-local venyxGui = coreGui:FindFirstChild("Venyx")  -- Имя ScreenGui Venyx
-if venyxGui then
-    venyxGui.Main.Size = UDim2.new(0, 300, 0, 200)  -- Миниатюрный размер (ширина 300, высота 200; измени по вкусу)
+if not LocalPlayer then
+    warn("Скрипт не может найти локального игрока. Попробуйте перезапустить игру.")
+    return
 end
 
--- Кастомизация: Темы для выделения (изменяй цвета для уникальности)
-local themes = {
-    Background = Color3.fromRGB(20, 20, 20),
-    Glow = Color3.fromRGB(0, 0, 0),
-    Accent = Color3.fromRGB(255, 0, 0),
-    LightContrast = Color3.fromRGB(30, 30, 30),
-    DarkContrast = Color3.fromRGB(10, 10, 10),
-    TextColor = Color3.fromRGB(255, 255, 255)
-}
-venyx.themes = themes
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "DeadRailsGUI"
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
 
--- Добавляем поддержку перемещения на телефоне (touch drag)
-local dragging = false
-local dragInput
-local dragStart
-local startPos
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 300, 0, 200)  -- Уменьшенный размер для миниатюрности
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
+MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+MainFrame.Visible = true
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 10)
+MainCorner.Parent = MainFrame
 
+local dragging, dragInput, dragStart, startPos
 local function update(input)
     local delta = input.Position - dragStart
-    venyxGui.Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 end
 
-venyxGui.Main.InputBegan:Connect(function(input)
+MainFrame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
-        startPos = venyxGui.Main.Position
-        
+        startPos = MainFrame.Position
         input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
                 dragging = false
@@ -45,52 +45,149 @@ venyxGui.Main.InputBegan:Connect(function(input)
     end
 end)
 
-venyxGui.Main.InputChanged:Connect(function(input)
+MainFrame.InputChanged:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
         dragInput = input
     end
 end)
 
-game:GetService("UserInputService").InputChanged:Connect(function(input)
+UserInputService.InputChanged:Connect(function(input)
     if dragging and input == dragInput then
         update(input)
     end
 end)
 
--- Переменные для состояний
+local TabContainer = Instance.new("Frame")
+TabContainer.Size = UDim2.new(0, 100, 1, 0)
+TabContainer.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
+TabContainer.BorderSizePixel = 0
+TabContainer.Parent = MainFrame
+local TabCorner = Instance.new("UICorner")
+TabCorner.CornerRadius = UDim.new(0, 10)
+TabCorner.Parent = TabContainer
+
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Size = UDim2.new(0, 200, 1, 0)  -- Уменьшен для миниатюрности
+ContentFrame.Position = UDim2.new(0, 100, 0, 0)
+ContentFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+ContentFrame.BorderSizePixel = 0
+ContentFrame.Parent = MainFrame
+local ContentCorner = Instance.new("UICorner")
+ContentCorner.CornerRadius = UDim.new(0, 10)
+ContentCorner.Parent = ContentFrame
+
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
+MinimizeButton.Position = UDim2.new(1, -70, 0, 5)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
+MinimizeButton.BorderSizePixel = 0
+MinimizeButton.Text = "▲"
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 0)
+MinimizeButton.TextScaled = true
+MinimizeButton.Parent = MainFrame
+local MinimizeCorner = Instance.new("UICorner")
+MinimizeCorner.CornerRadius = UDim.new(0, 5)
+MinimizeCorner.Parent = MinimizeButton
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -35, 0, 5)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CloseButton.BorderSizePixel = 0
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 0)
+CloseButton.TextScaled = true
+CloseButton.Parent = MainFrame
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 5)
+CloseCorner.Parent = CloseButton
+
+local MinimizedFrame = Instance.new("Frame")
+MinimizedFrame.Size = UDim2.new(0, 65, 0, 30)
+MinimizedFrame.Position = UDim2.new(1, -75, 0, 5)
+MinimizedFrame.BackgroundTransparency = 1
+MinimizedFrame.Parent = ScreenGui
+MinimizedFrame.Visible = false
+
+local MaximizeButton = Instance.new("TextButton")
+MaximizeButton.Size = UDim2.new(0, 30, 0, 30)
+MaximizeButton.Position = UDim2.new(0, 0, 0, 0)
+MaximizeButton.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
+MaximizeButton.BorderSizePixel = 0
+MaximizeButton.Text = "▼"
+MaximizeButton.TextColor3 = Color3.fromRGB(255, 255, 0)
+MaximizeButton.TextScaled = true
+MaximizeButton.Parent = MinimizedFrame
+local MaximizeCorner = Instance.new("UICorner")
+MaximizeCorner.CornerRadius = UDim.new(0, 5)
+MaximizeCorner.Parent = MaximizeButton
+
+local CloseButtonMinimized = Instance.new("TextButton")
+CloseButtonMinimized.Size = UDim2.new(0, 30, 0, 30)
+CloseButtonMinimized.Position = UDim2.new(0, 35, 0, 0)
+CloseButtonMinimized.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CloseButtonMinimized.BorderSizePixel = 0
+CloseButtonMinimized.Text = "X"
+CloseButtonMinimized.TextColor3 = Color3.fromRGB(255, 255, 0)
+CloseButtonMinimized.TextScaled = true
+CloseButtonMinimized.Parent = MinimizedFrame
+local CloseMinimizedCorner = Instance.new("UICorner")
+CloseMinimizedCorner.CornerRadius = UDim.new(0, 5)
+CloseMinimizedCorner.Parent = CloseButtonMinimized
+
+MinimizeButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+    MinimizedFrame.Visible = true
+    MinimizeButton.Text = "▼"
+    MaximizeButton.Text = "▼"
+end)
+
+MaximizeButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = true
+    MinimizedFrame.Visible = false
+    MinimizeButton.Text = "▲"
+    MaximizeButton.Text = "▲"
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+CloseButtonMinimized.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+local function createESP(character, name, color)
+    if not character then return end
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "ESP"
+    billboard.Size = UDim2.new(0, 100, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = character
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 1, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = name
+    nameLabel.TextColor3 = color
+    nameLabel.TextScaled = true
+    nameLabel.Parent = billboard
+end
+
+local function removeESP(character)
+    if not character then return end
+    local esp = character:FindFirstChild("ESP")
+    if esp then
+        esp:Destroy()
+    end
+end
+
 local npcLockEnabled = false
-local espEnabled = false
-local aimbotEnabled = false
-local godmodeEnabled = false
-local speedHackEnabled = false
-local speedValue = 50
-local autoFarmBondsEnabled = false
-local noClipEnabled = false
-
--- Основной таб: Main
-local MainPage = venyx:addPage("Main", 5012544693)
-local MainSection = MainPage:addSection("Core Cheats")
-
--- Таб для Combat
-local CombatPage = venyx:addPage("Combat", 5012544693)
-local CombatSection = CombatPage:addSection("Battle Features")
-
--- Таб для Farming
-local FarmingPage = venyx:addPage("Farming", 5012544693)
-local FarmingSection = FarmingPage:addSection("Resource Cheats")
-
--- Таб для Movement
-local MovementPage = venyx:addPage("Movement", 5012544693)
-local MovementSection = MovementPage:addSection("Mobility Hacks")
-
--- Таб для Info
-local InfoPage = venyx:addPage("Info", 5012544693)
-local InfoSection = InfoPage:addSection("Details")
-
--- Функции (остались те же)
-local function toggleNPCLock(enable)
-    npcLockEnabled = enable
-    if enable then
+local function toggleNPCLock()
+    npcLockEnabled = not npcLockEnabled
+    if npcLockEnabled then
+        -- Функция NPC Lock
         local Players = game:GetService("Players")
         local player = Players.LocalPlayer
         local runService = game:GetService("RunService")
@@ -118,33 +215,32 @@ local function toggleNPCLock(enable)
     end
 end
 
-local highlights = {}
-local function toggleESP(enable)
-    espEnabled = enable
-    if enable then
-        for _, object in ipairs(workspace:GetDescendants()) do
-            if object:IsA("Model") and object:FindFirstChild("Humanoid") and object:FindFirstChild("HumanoidRootPart") then
-                local highlight = Instance.new("Highlight")
-                highlight.Name = "ESPHighlight"
-                highlight.FillColor = Color3.new(1, 0, 0)
-                highlight.OutlineColor = Color3.new(0, 1, 0)
-                highlight.FillTransparency = 0.3
-                highlight.OutlineTransparency = 0
-                highlight.Parent = object
-                table.insert(highlights, highlight)
+local espEnabled = false
+local function toggleESP()
+    espEnabled = not espEnabled
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            if espEnabled then
+                createESP(player.Character, player.Name, Color3.fromRGB(255, 255, 0))
+            else
+                removeESP(player.Character)
             end
         end
-    else
-        for _, hl in ipairs(highlights) do
-            hl:Destroy()
-        end
-        highlights = {}
     end
 end
 
-local function toggleAimbot(enable)
-    aimbotEnabled = enable
-    if enable then
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        if espEnabled then
+            createESP(character, player.Name, Color3.fromRGB(255, 255, 0))
+        end
+    end)
+end)
+
+local aimbotEnabled = false
+local function toggleAimbot()
+    aimbotEnabled = not aimbotEnabled
+    if aimbotEnabled then
         local Players = game:GetService("Players")
         local player = Players.LocalPlayer
         local mouse = player:GetMouse()
@@ -169,9 +265,10 @@ local function toggleAimbot(enable)
     end
 end
 
-local function toggleGodmode(enable)
-    godmodeEnabled = enable
-    if enable then
+local godmodeEnabled = false
+local function toggleGodmode()
+    godmodeEnabled = not godmodeEnabled
+    if godmodeEnabled then
         local player = game.Players.LocalPlayer
         local runService = game:GetService("RunService")
         runService.Heartbeat:Connect(function()
@@ -182,11 +279,12 @@ local function toggleGodmode(enable)
     end
 end
 
-local function toggleSpeedHack(enable)
-    speedHackEnabled = enable
+local speedHackEnabled = false
+local function toggleSpeedHack()
+    speedHackEnabled = not speedHackEnabled
     local player = game.Players.LocalPlayer
     if player.Character and player.Character:FindFirstChild("Humanoid") then
-        if enable then
+        if speedHackEnabled then
             player.Character.Humanoid.WalkSpeed = speedValue
         else
             player.Character.Humanoid.WalkSpeed = 16
@@ -200,13 +298,14 @@ local function setInfiniteBonds()
     if leaderstats and leaderstats:FindFirstChild("Bonds") then
         leaderstats.Bonds.Value = 999999
     else
-        venyx:Notify("Error", "leaderstats or Bonds not found! Use Auto Farm instead.")
+        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Error", Text = "leaderstats or Bonds not found! Use Auto Farm instead.", Duration = 3})
     end
 end
 
-local function toggleAutoFarmBonds(enable)
-    autoFarmBondsEnabled = enable
-    if enable then
+local autoFarmBondsEnabled = false
+local function toggleAutoFarmBonds()
+    autoFarmBondsEnabled = not autoFarmBondsEnabled
+    if autoFarmBondsEnabled then
         local runService = game:GetService("RunService")
         local player = game.Players.LocalPlayer
         local character = player.Character or player.CharacterAdded:Wait()
@@ -225,100 +324,118 @@ local function toggleAutoFarmBonds(enable)
     end
 end
 
-local function toggleNoClip(enable)
-    noClipEnabled = enable
-    local player = game.Players.LocalPlayer
-    local runService = game:GetService("RunService")
-    if enable then
-        runService.Stepped:Connect(function()
-            if noClipEnabled and player.Character then
-                for _, part in ipairs(player.Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
+local noClipEnabled = false
+local function toggleNoClip()
+    noClipEnabled = not noClipEnabled
+    local character = LocalPlayer.Character
+    if character then
+        if noClipEnabled then
+            local runService = game:GetService("RunService")
+            runService.Stepped:Connect(function()
+                if noClipEnabled and character then
+                    for _, part in ipairs(character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
+                        end
                     end
                 end
-            end
-        end)
+            end)
+        end
     end
 end
 
 local function tpToEnd()
     local player = game.Players.LocalPlayer
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)  -- Замени на реальные координаты
     end
 end
 
-local function closeGUI()
-    venyx:toggle()
-    wait(0.1)
-    venyx = nil
-    local coreGui = game:GetService("CoreGui")
-    for _, gui in ipairs(coreGui:GetChildren()) do
-        if gui:IsA("ScreenGui") and gui.Name == "Venyx" then
-            gui:Destroy()
+local tabs = {"Main", "Combat", "Farming", "Movement", "Info"}
+local tabButtons = {}
+local currentTab = nil
+local sliders = {}
+
+for i, tabName in ipairs(tabs) do
+    local TabButton = Instance.new("TextButton")
+    TabButton.Size = UDim2.new(1, -10, 0, 35)  -- Уменьшенные кнопки для миниатюрности
+    TabButton.Position = UDim2.new(0, 5, 0, (i-1)*40)
+    TabButton.BackgroundColor3 = Color3.fromRGB(60, 20, 100)
+    TabButton.BorderSizePixel = 0
+    TabButton.Text = tabName
+    TabButton.TextColor3 = Color3.fromRGB(255, 255, 0)
+    TabButton.TextSize = 12
+    TabButton.TextWrapped = true
+    TabButton.Parent = TabContainer
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 5)
+    ButtonCorner.Parent = TabButton
+
+    table.insert(tabButtons, TabButton)
+
+    TabButton.MouseButton1Click:Connect(function()
+        if currentTab then
+            currentTab.BackgroundColor3 = Color3.fromRGB(60, 20, 100)
         end
+        TabButton.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
+        currentTab = TabButton
+
+        for _, slider in pairs(sliders) do
+            slider.Visible = false
+        end
+
+        if tabName == "Main" then
+            sliders.NPCLockSlider.Visible = true
+            sliders.ESPSlider.Visible = true
+        elseif tabName == "Combat" then
+            sliders.AimbotSlider.Visible = true
+            sliders.GodmodeSlider.Visible = true
+        elseif tabName == "Farming" then
+            sliders.InfiniteBondsButton.Visible = true
+            sliders.AutoFarmBondsSlider.Visible = true
+        elseif tabName == "Movement" then
+            sliders.SpeedHackSlider.Visible = true
+            sliders.NoClipSlider.Visible = true
+            sliders.TPToEndButton.Visible = true
+        end
+    end)
+
+    if tabName == "Main" then
+        sliders.NPCLockSlider = createSlider(ContentFrame, "NPC Lock", 10, toggleNPCLock, npcLockEnabled, false)
+        sliders.ESPSlider = createSlider(ContentFrame, "ESP", 60, toggleESP, espEnabled, false)
+        sliders.NPCLockSlider.Visible = false
+        sliders.ESPSlider.Visible = false
+    elseif tabName == "Combat" then
+        sliders.AimbotSlider = createSlider(ContentFrame, "Aimbot", 10, toggleAimbot, aimbotEnabled, false)
+        sliders.GodmodeSlider = createSlider(ContentFrame, "Godmode", 60, toggleGodmode, godmodeEnabled, false)
+        sliders.AimbotSlider.Visible = false
+        sliders.GodmodeSlider.Visible = false
+    elseif tabName == "Farming" then
+        sliders.InfiniteBondsButton = createSlider(ContentFrame, "Infinite Bonds", 10, setInfiniteBonds, false, false)
+        sliders.AutoFarmBondsSlider = createSlider(ContentFrame, "Auto Farm Bonds", 60, toggleAutoFarmBonds, autoFarmBondsEnabled, false)
+        sliders.InfiniteBondsButton.Visible = false
+        sliders.AutoFarmBondsSlider.Visible = false
+    elseif tabName == "Movement" then
+        sliders.SpeedHackSlider = createSlider(ContentFrame, "Speed Hack", 10, toggleSpeedHack, speedHackEnabled, true)
+        sliders.NoClipSlider = createSlider(ContentFrame, "NoClip", 80, toggleNoClip, noClipEnabled, false)
+        sliders.TPToEndButton = createSlider(ContentFrame, "TP to End", 130, tpToEnd, false, false)
+        sliders.SpeedHackSlider.Visible = false
+        sliders.NoClipSlider.Visible = false
+        sliders.TPToEndButton.Visible = false
+    elseif tabName == "Info" then
+        sliders.InfoLabel = createSlider(ContentFrame, "Расширенный GUI для Dead Rails", 10, function() end, false, false)
+        sliders.InfoLabel.Visible = false
     end
-    npcLockEnabled = false
-    espEnabled = false
-    aimbotEnabled = false
-    godmodeEnabled = false
-    speedHackEnabled = false
-    autoFarmBondsEnabled = false
-    noClipEnabled = false
 end
 
-MainSection:addToggle("NPC Lock", false, function(value)
-    toggleNPCLock(value)
-end)
+if #tabButtons > 0 then
+    tabButtons[1].MouseButton1Click:Connect(function()
+        tabButtons[1].MouseButton1Click()
+    end)()
+end
 
-MainSection:addToggle("ESP (Wallhack)", false, function(value)
-    toggleESP(value)
-end)
-
-CombatSection:addToggle("Aimbot", false, function(value)
-    toggleAimbot(value)
-end)
-
-CombatSection:addToggle("Godmode", false, function(value)
-    toggleGodmode(value)
-end)
-
-FarmingSection:addButton("Infinite Bonds", function()
-    setInfiniteBonds()
-end)
-
-FarmingSection:addToggle("Auto Farm Bonds", false, function(value)
-    toggleAutoFarmBonds(value)
-end)
-
-MovementSection:addToggle("Speed Hack", false, function(value)
-    toggleSpeedHack(value)
-end)
-
-MovementSection:addSlider("Speed Value", 50, 16, 100, function(value)
-    speedValue = value
-    if speedHackEnabled then
-        toggleSpeedHack(true)
-    end
-end)
-
-MovementSection:addToggle("NoClip", false, function(value)
-    toggleNoClip(value)
-end)
-
-MovementSection:addButton("TP to End", function()
-    tpToEnd()
-end)
-
-InfoSection:addLabel("Расширенный GUI для Dead Rails на Venyx UI")
-InfoSection:addLabel("Миниатюрный, кастомизируемый через themes")
-InfoSection:addLabel("Используй на свой риск!")
-
-InfoSection:addButton("Close GUI", function()
-    closeGUI()
-end)
-
-venyx:Notify("GUI Loaded", "Venyx UI - миниатюрная и изменяемая, с кнопкой закрытия!")
-
-venyx:SelectPage(venyx.pages[1], true)
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Скрипт Dead Rails загружен",
+    Text = "GUI с функциями от Grok",
+    Duration = 5
+})
