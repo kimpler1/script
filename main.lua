@@ -1,23 +1,18 @@
--- Загрузка Linoria UI Library (высоко кастомизируемая, для уникальности)
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/Library.lua"))()
+-- Загрузка DrRay UI Library (кастомизируемая, актуальная в 2025)
+local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()
 
--- Кастомная тема для выделения (можно менять цвета, добавить градиенты и т.д.)
-Library.Themes["CustomTheme"] = {
-    AccentColor = Color3.fromRGB(255, 50, 50),  -- Красный акцент
-    Background = Color3.fromRGB(20, 20, 20),  -- Тёмный фон
-    GroupBackground = Color3.fromRGB(30, 30, 30),
-    NavBackground = Color3.fromRGB(40, 40, 40),
-    TabBackground = Color3.fromRGB(35, 35, 35),
-    TextColor = Color3.fromRGB(255, 255, 255),
-    DisabledTextColor = Color3.fromRGB(150, 150, 150),
-    -- Добавь градиенты или анимации здесь (используй TweenService для кастома)
+-- Кастомизация для выделения (меняй цвета, добавь градиенты или анимации)
+DrRayLibrary.options = {  -- Пример кастом тем
+    mainColor = Color3.fromRGB(255, 50, 50),  -- Красный основной цвет
+    backgroundColor = Color3.fromRGB(20, 20, 20),  -- Тёмный фон
+    accentColor = Color3.fromRGB(255, 100, 100),  -- Акцент
+    textColor = Color3.fromRGB(255, 255, 255),  -- Текст белый
+    -- Добавь градиенты: используй UIStroke или Tween для кнопок в функциях
 }
-Library:LoadTheme("CustomTheme")  -- Применяем кастомную тему
 
--- Создание окна (меньше в 1.5 раза, кастом размер)
-local Window = Library:CreateWindow({Title = "Dead Rails Ultimate GUI by Grok", Size = UDim2.fromOffset(400, 300)})  -- Уменьшено от стандартного 600x450
+local window = DrRayLibrary:Load("Dead Rails Ultimate GUI by Grok", "Default")  -- Окно, можно кастомизировать размер
 
--- Переменные для состояний (остались те же)
+-- Переменные для состояний
 local npcLockEnabled = false
 local espEnabled = false
 local aimbotEnabled = false
@@ -27,23 +22,22 @@ local speedValue = 50
 local autoFarmBondsEnabled = false
 local noClipEnabled = false
 
--- Табы и группы
-local MainTab = Window:AddTab("Main")
-local MainGroup = MainTab:AddLeftGroupbox("Core Cheats")
+-- Основной таб: Main
+local MainTab = DrRayLibrary.newTab("Main", "rbxassetid://4483345998")  -- Иконка опционально
 
-local CombatTab = Window:AddTab("Combat")
-local CombatGroup = CombatTab:AddLeftGroupbox("Battle Features")
+-- Таб для Combat
+local CombatTab = DrRayLibrary.newTab("Combat", "rbxassetid://4483345998")
 
-local FarmingTab = Window:AddTab("Farming")
-local FarmingGroup = FarmingTab:AddLeftGroupbox("Resource Cheats")
+-- Таб для Farming
+local FarmingTab = DrRayLibrary.newTab("Farming", "rbxassetid://4483345998")
 
-local MovementTab = Window:AddTab("Movement")
-local MovementGroup = MovementTab:AddLeftGroupbox("Mobility Hacks")
+-- Таб для Movement
+local MovementTab = DrRayLibrary.newTab("Movement", "rbxassetid://4483345998")
 
-local InfoTab = Window:AddTab("Info")
-local InfoGroup = InfoTab:AddLeftGroupbox("Details")
+-- Таб для Info
+local InfoTab = DrRayLibrary.newTab("Info", "rbxassetid://4483345998")
 
--- Функции (остались те же)
+-- Функции (остались те же, но с кастом анимациями если нужно)
 local function toggleNPCLock(enable)
     npcLockEnabled = enable
     if enable then
@@ -156,7 +150,7 @@ local function setInfiniteBonds()
     if leaderstats and leaderstats:FindFirstChild("Bonds") then
         leaderstats.Bonds.Value = 999999
     else
-        Library:Notify("Error: leaderstats or Bonds not found! Use Auto Farm instead.", 3)
+        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Error", Text = "leaderstats or Bonds not found! Use Auto Farm instead.", Duration = 3})
     end
 end
 
@@ -205,53 +199,57 @@ local function tpToEnd()
     end
 end
 
--- Элементы GUI (адаптировано под Linoria)
-MainGroup:AddToggle("NPCLock", {Text = "NPC Lock", Callback = function(Value)
-    toggleNPCLock(Value)
-end})
+-- Элементы GUI на DrRay (адаптировано, с кастом)
+MainTab.newToggle("NPC Lock", "Автолок на NPC", false, function(state)
+    toggleNPCLock(state)
+end)
 
-MainGroup:AddToggle("ESP", {Text = "ESP (Wallhack)", Callback = function(Value)
-    toggleESP(Value)
-end})
+MainTab.newToggle("ESP (Wallhack)", "Выделение через стены", false, function(state)
+    toggleESP(state)
+end)
 
-CombatGroup:AddToggle("Aimbot", {Text = "Aimbot", Callback = function(Value)
-    toggleAimbot(Value)
-end})
+CombatTab.newToggle("Aimbot", "Автоприцел", false, function(state)
+    toggleAimbot(state)
+end)
 
-CombatGroup:AddToggle("Godmode", {Text = "Godmode", Callback = function(Value)
-    toggleGodmode(Value)
-end})
+CombatTab.newToggle("Godmode", "Бессмертие", false, function(state)
+    toggleGodmode(state)
+end)
 
-FarmingGroup:AddButton("Infinite Bonds", function()
+FarmingTab.newButton("Infinite Bonds", "Бесконечные бонды", function()
     setInfiniteBonds()
 end)
 
-FarmingGroup:AddToggle("AutoFarmBonds", {Text = "Auto Farm Bonds", Callback = function(Value)
-    toggleAutoFarmBonds(Value)
-end})
+FarmingTab.newToggle("Auto Farm Bonds", "Автосбор бондов", false, function(state)
+    toggleAutoFarmBonds(state)
+end)
 
-MovementGroup:AddToggle("SpeedHack", {Text = "Speed Hack", Callback = function(Value)
-    toggleSpeedHack(Value)
-end})
+MovementTab.newToggle("Speed Hack", "Увеличение скорости", false, function(state)
+    toggleSpeedHack(state)
+end)
 
-MovementGroup:AddSlider("SpeedValue", {Text = "Speed Value", Min = 16, Max = 100, Default = 50, Callback = function(Value)
-    speedValue = Value
+MovementTab.newSlider("Speed Value", "Значение скорости", 16, 100, 50, false, "Speed", function(value)
+    speedValue = value
     if speedHackEnabled then
         toggleSpeedHack(true)
     end
-end})
+end)
 
-MovementGroup:AddToggle("NoClip", {Text = "NoClip", Callback = function(Value)
-    toggleNoClip(Value)
-end})
+MovementTab.newToggle("NoClip", "Прохождение через стены", false, function(state)
+    toggleNoClip(state)
+end)
 
-MovementGroup:AddButton("TP to End", function()
+MovementTab.newButton("TP to End", "Телепорт к концу", function()
     tpToEnd()
 end)
 
-InfoGroup:AddLabel("Расширенный GUI для Dead Rails")
-InfoGroup:AddLabel("На Linoria Lib с кастом темой — выделяйся!")
-InfoGroup:AddLabel("Используй на свой риск!")
+InfoTab.newLabel("Расширенный GUI для Dead Rails с кастом на DrRay")
+InfoTab.newLabel("Выделяйся: меняй цвета в options выше!")
+InfoTab.newLabel("Используй на свой риск!")
 
 -- Уведомление при запуске
-Library:Notify("GUI Loaded", "Linoria Lib с кастомизацией — теперь уникальный дизайн!", 5)
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "GUI Loaded",
+    Text = "DrRay UI с кастомизацией — теперь уникальный!",
+    Duration = 5
+})
