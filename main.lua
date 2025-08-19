@@ -16,7 +16,7 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 267, 0, 200)  -- В полтора раза меньше (400/1.5=267, 300/1.5=200)
+MainFrame.Size = UDim2.new(0, 267, 0, 200)
 MainFrame.Position = UDim2.new(0.5, -133, 0.5, -100)
 MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 MainFrame.BorderSizePixel = 0
@@ -58,7 +58,7 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 local TabContainer = Instance.new("Frame")
-TabContainer.Size = UDim2.new(0, 67, 1, 0)  -- В полтора раза меньше (100/1.5≈67)
+TabContainer.Size = UDim2.new(0, 67, 1, 0)
 TabContainer.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
 TabContainer.BorderSizePixel = 0
 TabContainer.Parent = MainFrame
@@ -67,7 +67,7 @@ TabCorner.CornerRadius = UDim.new(0, 10)
 TabCorner.Parent = TabContainer
 
 local ContentFrame = Instance.new("ScrollingFrame")
-ContentFrame.Size = UDim2.new(0, 200, 1, 0)  -- В полтора раза меньше (300/1.5=200)
+ContentFrame.Size = UDim2.new(0, 200, 1, 0)
 ContentFrame.Position = UDim2.new(0, 67, 0, 0)
 ContentFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 ContentFrame.BorderSizePixel = 0
@@ -166,14 +166,14 @@ CloseButtonMinimized.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
-local function createSlider(labelText, toggleFunction, enabledFlag, hasSpeedSlider)
+local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasSpeedSlider)
     local containerHeight = hasSpeedSlider and 60 or 40
     local SliderContainer = Instance.new("Frame")
     SliderContainer.Size = UDim2.new(1, -20, 0, containerHeight)
     SliderContainer.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     SliderContainer.BackgroundTransparency = 0.5
     SliderContainer.BorderSizePixel = 0
-    SliderContainer.Parent = ContentFrame
+    SliderContainer.Parent = parent
     local SliderContainerCorner = Instance.new("UICorner")
     SliderContainerCorner.CornerRadius = UDim.new(0, 5)
     SliderContainerCorner.Parent = SliderContainer
@@ -286,7 +286,7 @@ local sliders = {}
 
 for i, tabName in ipairs(tabs) do
     local TabButton = Instance.new("TextButton")
-    TabButton.Size = UDim2.new(1, -10, 0, 35)  -- Уменьшенные кнопки
+    TabButton.Size = UDim2.new(1, -10, 0, 35)
     TabButton.Position = UDim2.new(0, 5, 0, (i-1)*40)
     TabButton.BackgroundColor3 = Color3.fromRGB(60, 20, 100)
     TabButton.BorderSizePixel = 0
@@ -329,7 +329,7 @@ for i, tabName in ipairs(tabs) do
             sliders.InfoLabel.Visible = true
         end
 
-        -- Обновить CanvasSize после показа слайдеров
+        -- Обновить CanvasSize
         local totalHeight = 0
         for _, slider in pairs(sliders) do
             if slider.Visible then
@@ -375,6 +375,6 @@ end
 
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Скрипт Dead Rails загружен",
-    Text = "GUI с функциями от Grok, без накладывания и меньше размером",
+    Text = "GUI с функциями от Grok, теперь без накладывания",
     Duration = 5
 })
