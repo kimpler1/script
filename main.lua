@@ -16,8 +16,8 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 267, 0, 200)
-MainFrame.Position = UDim2.new(0.5, -133, 0.5, -100)
+MainFrame.Size = UDim2.new(0, 400, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
 MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
@@ -58,7 +58,7 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 local TabContainer = Instance.new("Frame")
-TabContainer.Size = UDim2.new(0, 67, 1, 0)
+TabContainer.Size = UDim2.new(0, 100, 1, 0)
 TabContainer.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
 TabContainer.BorderSizePixel = 0
 TabContainer.Parent = MainFrame
@@ -67,8 +67,8 @@ TabCorner.CornerRadius = UDim.new(0, 10)
 TabCorner.Parent = TabContainer
 
 local ContentFrame = Instance.new("ScrollingFrame")
-ContentFrame.Size = UDim2.new(0, 200, 1, 0)
-ContentFrame.Position = UDim2.new(0, 67, 0, 0)
+ContentFrame.Size = UDim2.new(0, 300, 1, 0)
+ContentFrame.Position = UDim2.new(0, 100, 0, 0)
 ContentFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 ContentFrame.BorderSizePixel = 0
 ContentFrame.Parent = MainFrame
@@ -375,6 +375,6 @@ end
 
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Скрипт Dead Rails загружен",
-    Text = "GUI с функциями от Grok, теперь без накладывания",
+    Text = "GUI с функциями от Grok",
     Duration = 5
 })
