@@ -1,6 +1,11 @@
--- Загрузка Kavo UI Library (удобная и актуальная в 2025)
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("Dead Rails Ultimate GUI by Grok", "BloodTheme")  -- Тема BloodTheme для стиля
+-- Загрузка Rayfield UI Library (похожа на Kavo, с mobile drag support)
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Window = Rayfield:CreateWindow({
+    Name = "Dead Rails Ultimate GUI by Grok",
+    LoadingTitle = "Загрузка...",
+    LoadingSubtitle = "by Grok",
+    ConfigurationSaving = {Enabled = false}
+})
 
 -- Переменные для состояний
 local npcLockEnabled = false
@@ -12,25 +17,25 @@ local speedValue = 50
 local autoFarmBondsEnabled = false
 local noClipEnabled = false
 
--- Основной таб: Main Functions
-local MainTab = Window:NewTab("Main")
-local MainSection = MainTab:NewSection("Core Cheats")
+-- Основной таб: Main
+local MainTab = Window:CreateTab("Main")
+local MainSection = MainTab:CreateSection("Core Cheats")
 
 -- Таб для Combat
-local CombatTab = Window:NewTab("Combat")
-local CombatSection = CombatTab:NewSection("Battle Features")
+local CombatTab = Window:CreateTab("Combat")
+local CombatSection = CombatTab:CreateSection("Battle Features")
 
 -- Таб для Farming
-local FarmingTab = Window:NewTab("Farming")
-local FarmingSection = FarmingTab:NewSection("Resource Cheats")
+local FarmingTab = Window:CreateTab("Farming")
+local FarmingSection = FarmingTab:CreateSection("Resource Cheats")
 
 -- Таб для Movement
-local MovementTab = Window:NewTab("Movement")
-local MovementSection = MovementTab:NewSection("Mobility Hacks")
+local MovementTab = Window:CreateTab("Movement")
+local MovementSection = MovementTab:CreateSection("Mobility Hacks")
 
 -- Таб для Info
-local InfoTab = Window:NewTab("Info")
-local InfoSection = InfoTab:NewSection("Details")
+local InfoTab = Window:CreateTab("Info")
+local InfoSection = InfoTab:CreateSection("Details")
 
 -- Функции (остались те же)
 local function toggleNPCLock(enable)
@@ -145,7 +150,11 @@ local function setInfiniteBonds()
     if leaderstats and leaderstats:FindFirstChild("Bonds") then
         leaderstats.Bonds.Value = 999999
     else
-        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Error", Text = "leaderstats or Bonds not found! Use Auto Farm instead.", Duration = 3})
+        Rayfield:Notify({
+            Title = "Error",
+            Content = "leaderstats or Bonds not found! Use Auto Farm instead.",
+            Duration = 3
+        })
     end
 end
 
@@ -172,9 +181,9 @@ end
 
 local function toggleNoClip(enable)
     noClipEnabled = enable
-    local player = game.Players.LocalPlayer
-    local runService = game:GetService("RunService")
     if enable then
+        local runService = game:GetService("RunService")
+        local player = game.Players.LocalPlayer
         runService.Stepped:Connect(function()
             if noClipEnabled and player.Character then
                 for _, part in ipairs(player.Character:GetDescendants()) do
@@ -194,17 +203,10 @@ local function tpToEnd()
     end
 end
 
--- Функция для полного закрытия GUI (новая)
+-- Функция для полного закрытия GUI
 local function closeGUI()
-    Library:ToggleUI()  -- Сначала скрыть, если нужно
-    wait(0.1)
-    local coreGui = game:GetService("CoreGui")
-    for _, gui in ipairs(coreGui:GetChildren()) do
-        if gui:IsA("ScreenGui") and gui:FindFirstChild("Main") then  -- Найти Kavo GUI
-            gui:Destroy()
-        end
-    end
-    -- Очистка состояний (опционально, чтобы функции остановились)
+    Rayfield:Destroy()
+    -- Очистка состояний
     npcLockEnabled = false
     espEnabled = false
     aimbotEnabled = false
@@ -215,61 +217,105 @@ local function closeGUI()
 end
 
 -- Элементы GUI
-MainSection:NewToggle("NPC Lock", "Автолок на NPC", function(state)
-    toggleNPCLock(state)
-end)
-
-MainSection:NewToggle("ESP (Wallhack)", "Выделение через стены", function(state)
-    toggleESP(state)
-end)
-
-CombatSection:NewToggle("Aimbot", "Автоприцел", function(state)
-    toggleAimbot(state)
-end)
-
-CombatSection:NewToggle("Godmode", "Бессмертие", function(state)
-    toggleGodmode(state)
-end)
-
-FarmingSection:NewButton("Infinite Bonds", "Бесконечные бонды", function()
-    setInfiniteBonds()
-end)
-
-FarmingSection:NewToggle("Auto Farm Bonds", "Автосбор бондов", function(state)
-    toggleAutoFarmBonds(state)
-end)
-
-MovementSection:NewToggle("Speed Hack", "Увеличение скорости", function(state)
-    toggleSpeedHack(state)
-end)
-
-MovementSection:NewSlider("Speed Value", "Значение скорости", 100, 16, function(value)
-    speedValue = value
-    if speedHackEnabled then
-        toggleSpeedHack(true)  -- Обновить
+MainSection:CreateToggle({
+    Name = "NPC Lock",
+    CurrentValue = false,
+    Callback = function(Value)
+        toggleNPCLock(Value)
     end
-end)
+})
 
-MovementSection:NewToggle("NoClip", "Прохождение через стены", function(state)
-    toggleNoClip(state)
-end)
+MainSection:CreateToggle({
+    Name = "ESP (Wallhack)",
+    CurrentValue = false,
+    Callback = function(Value)
+        toggleESP(Value)
+    end
+})
 
-MovementSection:NewButton("TP to End", "Телепорт к концу", function()
-    tpToEnd()
-end)
+CombatSection:CreateToggle({
+    Name = "Aimbot",
+    CurrentValue = false,
+    Callback = function(Value)
+        toggleAimbot(Value)
+    end
+})
 
-InfoSection:NewLabel("Расширенный GUI для Dead Rails на Kavo UI")
-InfoSection:NewLabel("Добавлена кнопка закрытия ниже")
-InfoSection:NewLabel("Используй на свой риск!")
+CombatSection:CreateToggle({
+    Name = "Godmode",
+    CurrentValue = false,
+    Callback = function(Value)
+        toggleGodmode(Value)
+    end
+})
 
--- Новая кнопка закрытия
-InfoSection:NewButton("Close GUI", "Закрыть скрипт полностью", function()
-    closeGUI()
-end)
+FarmingSection:CreateButton({
+    Name = "Infinite Bonds",
+    Callback = function()
+        setInfiniteBonds()
+    end
+})
+
+FarmingSection:CreateToggle({
+    Name = "Auto Farm Bonds",
+    CurrentValue = false,
+    Callback = function(Value)
+        toggleAutoFarmBonds(Value)
+    end
+})
+
+MovementSection:CreateToggle({
+    Name = "Speed Hack",
+    CurrentValue = false,
+    Callback = function(Value)
+        toggleSpeedHack(Value)
+    end
+})
+
+MovementSection:CreateSlider({
+    Name = "Speed Value",
+    Range = {16, 100},
+    Increment = 1,
+    Suffix = "Speed",
+    CurrentValue = 50,
+    Callback = function(Value)
+        speedValue = Value
+        if speedHackEnabled then
+            toggleSpeedHack(true)
+        end
+    end
+})
+
+MovementSection:CreateToggle({
+    Name = "NoClip",
+    CurrentValue = false,
+    Callback = function(Value)
+        toggleNoClip(Value)
+    end
+})
+
+MovementSection:CreateButton({
+    Name = "TP to End",
+    Callback = function()
+        tpToEnd()
+    end
+})
+
+InfoSection:CreateLabel("Расширенный GUI для Dead Rails на Rayfield UI")
+InfoSection:CreateLabel("Поддержка drag на телефоне")
+InfoSection:CreateLabel("Используй на свой риск!")
+
+-- Кнопка закрытия
+InfoSection:CreateButton({
+    Name = "Close GUI",
+    Callback = function()
+        closeGUI()
+    end
+})
 
 -- Уведомление при запуске
-game:GetService("StarterGui"):SetCore("SendNotification", {
+Rayfield:Notify({
     Title = "GUI Loaded",
-    Text = "Kavo UI с кнопкой закрытия в Info!",
+    Content = "Теперь на Rayfield UI с drag на телефоне и кнопкой закрытия!",
     Duration = 5
 })
