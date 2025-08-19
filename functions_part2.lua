@@ -1,4 +1,4 @@
--- Исправленная функция: Infinite Bonds (теперь через leaderstats)
+-- Функция Infinite Bonds
 local function setInfiniteBonds()
     local player = game.Players.LocalPlayer
     local leaderstats = player:WaitForChild("leaderstats")
@@ -6,11 +6,11 @@ local function setInfiniteBonds()
     if bonds then
         bonds.Value = 999999
     else
-        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Error", Text = "Bonds not found in leaderstats!", Duration = 3})
+        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Error", Text = "Bonds not found!", Duration = 3})
     end
 end
 
--- Переделанная функция: Auto Farm Bonds (ищет 'Bond' или 'Treasury', TP к ним)
+-- Функция Auto Farm Bonds
 local function toggleAutoFarmBonds(enable)
     autoFarmBondsEnabled = enable
     if enable then
@@ -30,14 +30,14 @@ local function toggleAutoFarmBonds(enable)
                     end
                 end
                 if not foundBonds then
-                    game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Info", Text = "No bonds found! Try in bank vault.", Duration = 3})
+                    game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Info", Text = "No bonds found!", Duration = 3})
                 end
             end
         end)
     end
 end
 
--- Новая функция: Auto Win (loop TP to end для farm bonds через победы)
+-- Функция Auto Win
 local function toggleAutoWin(enable)
     autoWinEnabled = enable
     if enable then
@@ -45,7 +45,7 @@ local function toggleAutoWin(enable)
         runService.Heartbeat:Connect(function()
             if autoWinEnabled then
                 tpToEnd()
-                wait(5)  -- Задержка для повторения (избегай спама, чтобы не бан)
+                wait(5)
             end
         end)
     end
@@ -73,11 +73,11 @@ end
 local function tpToEnd()
     local player = game.Players.LocalPlayer
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)  -- Замени на реальные координаты конца (найди в игре)
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)  -- Замени на реальные
     end
 end
 
--- Элементы GUI (ссылаются на функции из part1 и part2)
+-- Добавление элементов в GUI (из functions.lua)
 MainSection:NewToggle("NPC Lock", "Автолок на NPC", function(state)
     toggleNPCLock(state)
 end)
@@ -113,7 +113,7 @@ end)
 MovementSection:NewSlider("Speed Value", "Значение скорости", 100, 16, function(value)
     speedValue = value
     if speedHackEnabled then
-        toggleSpeedHack(true)  -- Обновить
+        toggleSpeedHack(true)
     end
 end)
 
@@ -125,16 +125,6 @@ MovementSection:NewButton("TP to End", "Телепорт к концу", functio
     tpToEnd()
 end)
 
--- Таб для Info
-local InfoTab = Window:NewTab("Info")
-local InfoSection = InfoTab:NewSection("Details")
-InfoSection:NewLabel("Расширенный GUI для Dead Rails с исправлениями")
-InfoSection:NewLabel("Bonds теперь в leaderstats; Auto Farm ищет 'Bond/Treasury'")
+InfoSection:NewLabel("Расширенный GUI для Dead Rails")
+InfoSection:NewLabel("Все функции загружены")
 InfoSection:NewLabel("Используй на свой риск!")
-
--- Уведомление
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "GUI Updated",
-    Text = "Infinite Bonds и Auto Farm исправлены!",
-    Duration = 5
-})
