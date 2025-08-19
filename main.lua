@@ -16,8 +16,8 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 400, 0, 300)
-MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+MainFrame.Size = UDim2.new(0, 267, 0, 200)  -- В полтора раза меньше (400/1.5=267, 300/1.5=200)
+MainFrame.Position = UDim2.new(0.5, -133, 0.5, -100)
 MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
@@ -58,7 +58,7 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 local TabContainer = Instance.new("Frame")
-TabContainer.Size = UDim2.new(0, 100, 1, 0)
+TabContainer.Size = UDim2.new(0, 67, 1, 0)  -- В полтора раза меньше (100/1.5≈67)
 TabContainer.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
 TabContainer.BorderSizePixel = 0
 TabContainer.Parent = MainFrame
@@ -66,15 +66,24 @@ local TabCorner = Instance.new("UICorner")
 TabCorner.CornerRadius = UDim.new(0, 10)
 TabCorner.Parent = TabContainer
 
-local ContentFrame = Instance.new("Frame")
-ContentFrame.Size = UDim2.new(0, 300, 1, 0)
-ContentFrame.Position = UDim2.new(0, 100, 0, 0)
+local ContentFrame = Instance.new("ScrollingFrame")
+ContentFrame.Size = UDim2.new(0, 200, 1, 0)  -- В полтора раза меньше (300/1.5=200)
+ContentFrame.Position = UDim2.new(0, 67, 0, 0)
 ContentFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 ContentFrame.BorderSizePixel = 0
 ContentFrame.Parent = MainFrame
+ContentFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+ContentFrame.ScrollBarThickness = 10
+ContentFrame.ScrollingDirection = Enum.ScrollingDirection.Y
 local ContentCorner = Instance.new("UICorner")
 ContentCorner.CornerRadius = UDim.new(0, 10)
 ContentCorner.Parent = ContentFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.Parent = ContentFrame
 
 local MinimizeButton = Instance.new("TextButton")
 MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
@@ -157,15 +166,14 @@ CloseButtonMinimized.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
-local function createSlider(parent, labelText, positionY, toggleFunction, enabledFlag, hasSpeedSlider)
+local function createSlider(labelText, toggleFunction, enabledFlag, hasSpeedSlider)
     local containerHeight = hasSpeedSlider and 60 or 40
     local SliderContainer = Instance.new("Frame")
-    SliderContainer.Size = UDim2.new(0, 280, 0, containerHeight)
-    SliderContainer.Position = UDim2.new(0, 10, 0, positionY)
+    SliderContainer.Size = UDim2.new(1, -20, 0, containerHeight)
     SliderContainer.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     SliderContainer.BackgroundTransparency = 0.5
     SliderContainer.BorderSizePixel = 0
-    SliderContainer.Parent = parent
+    SliderContainer.Parent = ContentFrame
     local SliderContainerCorner = Instance.new("UICorner")
     SliderContainerCorner.CornerRadius = UDim.new(0, 5)
     SliderContainerCorner.Parent = SliderContainer
@@ -278,13 +286,13 @@ local sliders = {}
 
 for i, tabName in ipairs(tabs) do
     local TabButton = Instance.new("TextButton")
-    TabButton.Size = UDim2.new(1, -10, 0, 45)
-    TabButton.Position = UDim2.new(0, 5, 0, (i-1)*50)
+    TabButton.Size = UDim2.new(1, -10, 0, 35)  -- Уменьшенные кнопки
+    TabButton.Position = UDim2.new(0, 5, 0, (i-1)*40)
     TabButton.BackgroundColor3 = Color3.fromRGB(60, 20, 100)
     TabButton.BorderSizePixel = 0
     TabButton.Text = tabName
     TabButton.TextColor3 = Color3.fromRGB(255, 255, 0)
-    TabButton.TextSize = 14
+    TabButton.TextSize = 12
     TabButton.TextWrapped = true
     TabButton.Parent = TabContainer
     local ButtonCorner = Instance.new("UICorner")
@@ -320,32 +328,41 @@ for i, tabName in ipairs(tabs) do
         elseif tabName == "Info" then
             sliders.InfoLabel.Visible = true
         end
+
+        -- Обновить CanvasSize после показа слайдеров
+        local totalHeight = 0
+        for _, slider in pairs(sliders) do
+            if slider.Visible then
+                totalHeight = totalHeight + slider.AbsoluteSize.Y + UIListLayout.Padding.Offset
+            end
+        end
+        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
     end)
 
     if tabName == "Main" then
-        sliders.NPCLockSlider = createSlider(ContentFrame, "NPC Lock", 50, toggleNPCLock, npcLockEnabled, false)
-        sliders.ESPSlider = createSlider(ContentFrame, "ESP", 100, toggleESP, espEnabled, false)
-        sliders.NPCLockSlider.Visible = true  -- Видимый по умолчанию для Main
-        sliders.ESPSlider.Visible = true
+        sliders.NPCLockSlider = createSlider(ContentFrame, "NPC Lock", toggleNPCLock, npcLockEnabled, false)
+        sliders.ESPSlider = createSlider(ContentFrame, "ESP (Wallhack)", toggleESP, espEnabled, false)
+        sliders.NPCLockSlider.Visible = false
+        sliders.ESPSlider.Visible = false
     elseif tabName == "Combat" then
-        sliders.AimbotSlider = createSlider(ContentFrame, "Aimbot", 50, toggleAimbot, aimbotEnabled, false)
-        sliders.GodmodeSlider = createSlider(ContentFrame, "Godmode", 100, toggleGodmode, godmodeEnabled, false)
+        sliders.AimbotSlider = createSlider(ContentFrame, "Aimbot", toggleAimbot, aimbotEnabled, false)
+        sliders.GodmodeSlider = createSlider(ContentFrame, "Godmode", toggleGodmode, godmodeEnabled, false)
         sliders.AimbotSlider.Visible = false
         sliders.GodmodeSlider.Visible = false
     elseif tabName == "Farming" then
-        sliders.InfiniteBondsSlider = createSlider(ContentFrame, "Infinite Bonds", 50, setInfiniteBonds, false, false)
-        sliders.AutoFarmBondsSlider = createSlider(ContentFrame, "Auto Farm Bonds", 100, toggleAutoFarmBonds, autoFarmBondsEnabled, false)
+        sliders.InfiniteBondsSlider = createSlider(ContentFrame, "Infinite Bonds", setInfiniteBonds, false, false)
+        sliders.AutoFarmBondsSlider = createSlider(ContentFrame, "Auto Farm Bonds", toggleAutoFarmBonds, autoFarmBondsEnabled, false)
         sliders.InfiniteBondsSlider.Visible = false
         sliders.AutoFarmBondsSlider.Visible = false
     elseif tabName == "Movement" then
-        sliders.SpeedHackSlider = createSlider(ContentFrame, "Speed Hack", 50, toggleSpeedHack, speedHackEnabled, true)
-        sliders.NoClipSlider = createSlider(ContentFrame, "NoClip", 110, toggleNoClip, noClipEnabled, false)
-        sliders.TPToEndSlider = createSlider(ContentFrame, "TP to End", 160, tpToEnd, false, false)
+        sliders.SpeedHackSlider = createSlider(ContentFrame, "Speed Hack", toggleSpeedHack, speedHackEnabled, true)
+        sliders.NoClipSlider = createSlider(ContentFrame, "NoClip", toggleNoClip, noClipEnabled, false)
+        sliders.TPToEndSlider = createSlider(ContentFrame, "TP to End", tpToEnd, false, false)
         sliders.SpeedHackSlider.Visible = false
         sliders.NoClipSlider.Visible = false
         sliders.TPToEndSlider.Visible = false
     elseif tabName == "Info" then
-        sliders.InfoLabel = createSlider(ContentFrame, "Расширенный GUI для Dead Rails", 50, function() end, false, false)
+        sliders.InfoLabel = createSlider(ContentFrame, "Расширенный GUI для Dead Rails", function() end, false, false)
         sliders.InfoLabel.Visible = false
     end
 end
@@ -358,6 +375,6 @@ end
 
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Скрипт Dead Rails загружен",
-    Text = "GUI с функциями от Grok, не пустой по умолчанию",
+    Text = "GUI с функциями от Grok, без накладывания и меньше размером",
     Duration = 5
 })
