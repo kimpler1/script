@@ -1,33 +1,23 @@
--- Загрузка Orion Library (customizable UI для Roblox)
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({Name = "Dead Rails Ultimate GUI by Grok", HidePremium = false, SaveConfig = false, ConfigFolder = "DeadRailsConfig"})
+-- Загрузка Linoria UI Library (высоко кастомизируемая, для уникальности)
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/Library.lua"))()
 
--- Кастомная тема для выделения (можно менять цвета, стили)
-OrionLib.Themes["Custom"] = {
-    Main = Color3.fromRGB(30, 30, 30),  -- Тёмный фон
-    Second = Color3.fromRGB(20, 20, 20),  -- Вторичный
-    Stroke = Color3.fromRGB(255, 0, 0),  -- Красный контур
-    Divider = Color3.fromRGB(50, 50, 50),
-    Text = Color3.fromRGB(255, 255, 255),
-    TextDark = Color3.fromRGB(200, 200, 200),
-    TabText = Color3.fromRGB(255, 255, 255),
-    TabTextDark = Color3.fromRGB(180, 180, 180),
-    Tab = Color3.fromRGB(40, 40, 40),
-    Background = Color3.fromRGB(25, 25, 25),
-    BackgroundDark = Color3.fromRGB(15, 15, 15),
-    TabDivider = Color3.fromRGB(255, 0, 0)  -- Красный разделитель
+-- Кастомная тема для выделения (можно менять цвета, добавить градиенты и т.д.)
+Library.Themes["CustomTheme"] = {
+    AccentColor = Color3.fromRGB(255, 50, 50),  -- Красный акцент
+    Background = Color3.fromRGB(20, 20, 20),  -- Тёмный фон
+    GroupBackground = Color3.fromRGB(30, 30, 30),
+    NavBackground = Color3.fromRGB(40, 40, 40),
+    TabBackground = Color3.fromRGB(35, 35, 35),
+    TextColor = Color3.fromRGB(255, 255, 255),
+    DisabledTextColor = Color3.fromRGB(150, 150, 150),
+    -- Добавь градиенты или анимации здесь (используй TweenService для кастома)
 }
-OrionLib:SelectTheme("Custom")  -- Применяем кастомную тему
+Library:LoadTheme("CustomTheme")  -- Применяем кастомную тему
 
--- Уменьшение размера окна в 1.5 раза (кастом для мобильного)
-wait(0.1)
-local coreGui = game:GetService("CoreGui")
-local orionGui = coreGui:FindFirstChild("Orion")
-if orionGui then
-    orionGui.Main.Size = UDim2.new(0, 400, 0, 300)  -- Уменьшено от стандартного ~600x450
-end
+-- Создание окна (меньше в 1.5 раза, кастом размер)
+local Window = Library:CreateWindow({Title = "Dead Rails Ultimate GUI by Grok", Size = UDim2.fromOffset(400, 300)})  -- Уменьшено от стандартного 600x450
 
--- Переменные для состояний
+-- Переменные для состояний (остались те же)
 local npcLockEnabled = false
 local espEnabled = false
 local aimbotEnabled = false
@@ -37,25 +27,21 @@ local speedValue = 50
 local autoFarmBondsEnabled = false
 local noClipEnabled = false
 
--- Основной таб: Main
-local MainTab = Window:MakeTab({Name = "Main", Icon = "rbxassetid://4483345998", PremiumOnly = false})
-local MainSection = MainTab:AddSection({Name = "Core Cheats"})
+-- Табы и группы
+local MainTab = Window:AddTab("Main")
+local MainGroup = MainTab:AddLeftGroupbox("Core Cheats")
 
--- Таб для Combat
-local CombatTab = Window:MakeTab({Name = "Combat", Icon = "rbxassetid://4483345998", PremiumOnly = false})
-local CombatSection = CombatTab:AddSection({Name = "Battle Features"})
+local CombatTab = Window:AddTab("Combat")
+local CombatGroup = CombatTab:AddLeftGroupbox("Battle Features")
 
--- Таб для Farming
-local FarmingTab = Window:MakeTab({Name = "Farming", Icon = "rbxassetid://4483345998", PremiumOnly = false})
-local FarmingSection = FarmingTab:AddSection({Name = "Resource Cheats"})
+local FarmingTab = Window:AddTab("Farming")
+local FarmingGroup = FarmingTab:AddLeftGroupbox("Resource Cheats")
 
--- Таб для Movement
-local MovementTab = Window:MakeTab({Name = "Movement", Icon = "rbxassetid://4483345998", PremiumOnly = false})
-local MovementSection = MovementTab:AddSection({Name = "Mobility Hacks"})
+local MovementTab = Window:AddTab("Movement")
+local MovementGroup = MovementTab:AddLeftGroupbox("Mobility Hacks")
 
--- Таб для Info
-local InfoTab = Window:MakeTab({Name = "Info", Icon = "rbxassetid://4483345998", PremiumOnly = false})
-local InfoSection = InfoTab:AddSection({Name = "Details"})
+local InfoTab = Window:AddTab("Info")
+local InfoGroup = InfoTab:AddLeftGroupbox("Details")
 
 -- Функции (остались те же)
 local function toggleNPCLock(enable)
@@ -170,7 +156,7 @@ local function setInfiniteBonds()
     if leaderstats and leaderstats:FindFirstChild("Bonds") then
         leaderstats.Bonds.Value = 999999
     else
-        OrionLib:MakeNotification({Name = "Error", Content = "leaderstats or Bonds not found! Use Auto Farm instead.", Image = "rbxassetid://4483345998", Time = 3})
+        Library:Notify("Error: leaderstats or Bonds not found! Use Auto Farm instead.", 3)
     end
 end
 
@@ -219,59 +205,53 @@ local function tpToEnd()
     end
 end
 
--- Элементы GUI (адаптировано под Orion)
-MainSection:AddToggle({Name = "NPC Lock", Default = false, Callback = function(Value)
+-- Элементы GUI (адаптировано под Linoria)
+MainGroup:AddToggle("NPCLock", {Text = "NPC Lock", Callback = function(Value)
     toggleNPCLock(Value)
 end})
 
-MainSection:AddToggle({Name = "ESP (Wallhack)", Default = false, Callback = function(Value)
+MainGroup:AddToggle("ESP", {Text = "ESP (Wallhack)", Callback = function(Value)
     toggleESP(Value)
 end})
 
-CombatSection:AddToggle({Name = "Aimbot", Default = false, Callback = function(Value)
+CombatGroup:AddToggle("Aimbot", {Text = "Aimbot", Callback = function(Value)
     toggleAimbot(Value)
 end})
 
-CombatSection:AddToggle({Name = "Godmode", Default = false, Callback = function(Value)
+CombatGroup:AddToggle("Godmode", {Text = "Godmode", Callback = function(Value)
     toggleGodmode(Value)
 end})
 
-FarmingSection:AddButton({Name = "Infinite Bonds", Callback = function()
+FarmingGroup:AddButton("Infinite Bonds", function()
     setInfiniteBonds()
-end})
+end)
 
-FarmingSection:AddToggle({Name = "Auto Farm Bonds", Default = false, Callback = function(Value)
+FarmingGroup:AddToggle("AutoFarmBonds", {Text = "Auto Farm Bonds", Callback = function(Value)
     toggleAutoFarmBonds(Value)
 end})
 
-MovementSection:AddToggle({Name = "Speed Hack", Default = false, Callback = function(Value)
+MovementGroup:AddToggle("SpeedHack", {Text = "Speed Hack", Callback = function(Value)
     toggleSpeedHack(Value)
 end})
 
-MovementSection:AddSlider({Name = "Speed Value", Min = 16, Max = 100, Increment = 1, Default = 50, Callback = function(Value)
+MovementGroup:AddSlider("SpeedValue", {Text = "Speed Value", Min = 16, Max = 100, Default = 50, Callback = function(Value)
     speedValue = Value
     if speedHackEnabled then
         toggleSpeedHack(true)
     end
 end})
 
-MovementSection:AddToggle({Name = "NoClip", Default = false, Callback = function(Value)
+MovementGroup:AddToggle("NoClip", {Text = "NoClip", Callback = function(Value)
     toggleNoClip(Value)
 end})
 
-MovementSection:AddButton({Name = "TP to End", Callback = function()
+MovementGroup:AddButton("TP to End", function()
     tpToEnd()
-end})
+end)
 
-InfoSection:AddLabel("Расширенный GUI для Dead Rails")
-InfoSection:AddLabel("На Orion Lib с кастом темой для уникальности!")
-InfoSection:AddLabel("Используй на свой риск!")
+InfoGroup:AddLabel("Расширенный GUI для Dead Rails")
+InfoGroup:AddLabel("На Linoria Lib с кастом темой — выделяйся!")
+InfoGroup:AddLabel("Используй на свой риск!")
 
--- Инициализация и уведомление
-OrionLib:Init()
-OrionLib:MakeNotification({
-    Name = "GUI Loaded",
-    Content = "Orion Lib с кастомизацией — теперь выделяешься!",
-    Image = "rbxassetid://4483345998",
-    Time = 5
-})
+-- Уведомление при запуске
+Library:Notify("GUI Loaded", "Linoria Lib с кастомизацией — теперь уникальный дизайн!", 5)
