@@ -1,16 +1,15 @@
--- Загрузка mobile-compatible Kavo UI Library (с фиксом drag на телефоне)
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/S33R-Of-1ndia/Kavo-Mobile-Fix/main/source.lua"))()
+-- Загрузка оригинальной Kavo UI Library (стабильная, без мобильного фикса)
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 local Window = Library.CreateLib("Dead Rails Ultimate GUI by Grok", "BloodTheme")  -- Красивая тема BloodTheme
 
--- Уменьшение размера GUI в 1.5 раза (после создания)
+-- Уменьшение размера GUI в 1.5 раза (если не сработает, удали этот блок)
 wait(0.1)  -- Дождаться создания UI
-local title = "Dead Rails Ultimate GUI by Grok"
 local coreGui = game:GetService("CoreGui")
-local gui = coreGui:FindFirstChild(title)
+local gui = coreGui:FindFirstChildWhichIsA("ScreenGui")  -- Поиск GUI по типу (надёжнее)
 if gui then
     local main = gui:FindFirstChild("Main")
     if main then
-        main.Size = UDim2.new(0, 331, 0, 286)  -- Уменьшено в 1.5 раза от оригинала 496x429
+        main.Size = UDim2.new(0, 331, 0, 286)  -- Уменьшено от оригинала
     end
 end
 
@@ -40,7 +39,7 @@ local FarmingSection = FarmingTab:NewSection("Resource Cheats")
 local MovementTab = Window:NewTab("Movement")
 local MovementSection = MovementTab:NewSection("Mobility Hacks")
 
--- Функции (остались те же, с фиксом Bonds)
+-- Функции (остались те же)
 local function toggleNPCLock(enable)
     npcLockEnabled = enable
     if enable then
@@ -198,7 +197,7 @@ end
 local function tpToEnd()
     local player = game.Players.LocalPlayer
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)  -- Замени на реальные координаты
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)  -- Замени на реальные
     end
 end
 
@@ -249,13 +248,13 @@ end)
 -- Таб для Info
 local InfoTab = Window:NewTab("Info")
 local InfoSection = InfoTab:NewSection("Details")
-InfoSection:NewLabel("Расширенный GUI для Dead Rails с фиксом для мобильных")
-InfoSection:NewLabel("Тема: BloodTheme, размер уменьшен")
+InfoSection:NewLabel("Расширенный GUI для Dead Rails")
+InfoSection:NewLabel("Фикс запуска + уменьшен размер")
 InfoSection:NewLabel("Используй на свой риск!")
 
 -- Уведомление
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "GUI Updated",
-    Text = "Теперь draggable на телефоне и меньше в 1.5 раза!",
+    Title = "GUI Loaded",
+    Text = "Скрипт запущен с фиксом!",
     Duration = 5
 })
