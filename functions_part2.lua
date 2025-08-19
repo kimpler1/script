@@ -18,7 +18,6 @@ local function toggleAutoFarmBonds(enable)
         local player = game.Players.LocalPlayer
         local character = player.Character or player.CharacterAdded:Wait()
         local hrp = character:WaitForChild("HumanoidRootPart")
-        
         local foundBonds = false
         runService.Heartbeat:Connect(function()
             if autoFarmBondsEnabled then
@@ -73,11 +72,11 @@ end
 local function tpToEnd()
     local player = game.Players.LocalPlayer
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)  -- Замени на реальные
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)
     end
 end
 
--- Добавление элементов в GUI (из functions.lua)
+-- Добавление элементов в GUI
 MainSection:NewToggle("NPC Lock", "Автолок на NPC", function(state)
     toggleNPCLock(state)
 end)
