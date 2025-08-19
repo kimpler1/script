@@ -1,6 +1,15 @@
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/GreenDeno/Venyx-UI-Library/main/source.lua"))()
 local venyx = library.new("Dead Rails Ultimate GUI by Grok")
 
+-- Кастомизация размера: Делаем GUI миниатюрным (меньше по размеру)
+wait(0.1)  -- Дождаться создания UI
+local coreGui = game:GetService("CoreGui")
+local venyxGui = coreGui:FindFirstChild("Venyx")  -- Имя ScreenGui Venyx
+if venyxGui then
+    venyxGui.Main.Size = UDim2.new(0, 300, 0, 200)  -- Миниатюрный размер (ширина 300, высота 200; измени по вкусу)
+end
+
+-- Кастомизация: Темы для выделения (изменяй цвета для уникальности)
 local themes = {
     Background = Color3.fromRGB(20, 20, 20),
     Glow = Color3.fromRGB(0, 0, 0),
@@ -11,6 +20,44 @@ local themes = {
 }
 venyx.themes = themes
 
+-- Добавляем поддержку перемещения на телефоне (touch drag)
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    venyxGui.Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+venyxGui.Main.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = venyxGui.Main.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+venyxGui.Main.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if dragging and input == dragInput then
+        update(input)
+    end
+end)
+
+-- Переменные для состояний
 local npcLockEnabled = false
 local espEnabled = false
 local aimbotEnabled = false
@@ -20,21 +67,27 @@ local speedValue = 50
 local autoFarmBondsEnabled = false
 local noClipEnabled = false
 
+-- Основной таб: Main
 local MainPage = venyx:addPage("Main", 5012544693)
 local MainSection = MainPage:addSection("Core Cheats")
 
+-- Таб для Combat
 local CombatPage = venyx:addPage("Combat", 5012544693)
 local CombatSection = CombatPage:addSection("Battle Features")
 
+-- Таб для Farming
 local FarmingPage = venyx:addPage("Farming", 5012544693)
 local FarmingSection = FarmingPage:addSection("Resource Cheats")
 
+-- Таб для Movement
 local MovementPage = venyx:addPage("Movement", 5012544693)
 local MovementSection = MovementPage:addSection("Mobility Hacks")
 
+-- Таб для Info
 local InfoPage = venyx:addPage("Info", 5012544693)
 local InfoSection = InfoPage:addSection("Details")
 
+-- Функции (остались те же)
 local function toggleNPCLock(enable)
     npcLockEnabled = enable
     if enable then
