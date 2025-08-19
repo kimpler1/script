@@ -324,9 +324,9 @@ for i, tabName in ipairs(tabs) do
 
     if tabName == "Main" then
         sliders.NPCLockSlider = createSlider(ContentFrame, "NPC Lock", 50, toggleNPCLock, npcLockEnabled, false)
-        sliders.ESPSlider = createSlider(ContentFrame, "ESP (Wallhack)", 100, toggleESP, espEnabled, false)
-        sliders.NPCLockSlider.Visible = false
-        sliders.ESPSlider.Visible = false
+        sliders.ESPSlider = createSlider(ContentFrame, "ESP", 100, toggleESP, espEnabled, false)
+        sliders.NPCLockSlider.Visible = true  -- Видимый по умолчанию для Main
+        sliders.ESPSlider.Visible = true
     elseif tabName == "Combat" then
         sliders.AimbotSlider = createSlider(ContentFrame, "Aimbot", 50, toggleAimbot, aimbotEnabled, false)
         sliders.GodmodeSlider = createSlider(ContentFrame, "Godmode", 100, toggleGodmode, godmodeEnabled, false)
@@ -358,6 +358,6 @@ end
 
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Скрипт Dead Rails загружен",
-    Text = "GUI с функциями от Grok",
+    Text = "GUI с функциями от Grok, не пустой по умолчанию",
     Duration = 5
 })
