@@ -16,7 +16,7 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 300, 0, 200)  -- Уменьшенный размер для миниатюрности
+MainFrame.Size = UDim2.new(0, 300, 0, 200)  -- Уменьшен для миниатюрности
 MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
 MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 MainFrame.BorderSizePixel = 0
@@ -157,48 +157,19 @@ CloseButtonMinimized.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
-local function createESP(character, name, color)
-    if not character then return end
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "ESP"
-    billboard.Size = UDim2.new(0, 100, 0, 50)
-    billboard.StudsOffset = Vector3.new(0, 3, 0)
-    billboard.AlwaysOnTop = true
-    billboard.Parent = character
-
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, 0, 1, 0)
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Text = name
-    nameLabel.TextColor3 = color
-    nameLabel.TextScaled = true
-    nameLabel.Parent = billboard
-end
-
-local function removeESP(character)
-    if not character then return end
-    local esp = character:FindFirstChild("ESP")
-    if esp then
-        esp:Destroy()
-    end
-end
-
+-- Функции
 local npcLockEnabled = false
 local function toggleNPCLock()
     npcLockEnabled = not npcLockEnabled
     if npcLockEnabled then
-        -- Функция NPC Lock
-        local Players = game:GetService("Players")
-        local player = Players.LocalPlayer
         local runService = game:GetService("RunService")
         local camera = workspace.CurrentCamera
-        
         runService.RenderStepped:Connect(function()
             if npcLockEnabled then
                 local closestNPC = nil
                 local closestDistance = math.huge
                 for _, object in ipairs(workspace:GetDescendants()) do
-                    if object:IsA("Model") and object:FindFirstChild("Humanoid") and object:FindFirstChild("HumanoidRootPart") and object.Name ~= player.Name then
+                    if object:IsA("Model") and object:FindFirstChild("Humanoid") and object:FindFirstChild("HumanoidRootPart") and object.Name ~= LocalPlayer.Name then
                         local hrp = object:FindFirstChild("HumanoidRootPart")
                         local distance = (camera.CFrame.Position - hrp.Position).Magnitude
                         if distance < closestDistance then
@@ -215,41 +186,42 @@ local function toggleNPCLock()
     end
 end
 
-local espEnabled = false
+local highlights = {}
 local function toggleESP()
     espEnabled = not espEnabled
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character then
-            if espEnabled then
-                createESP(player.Character, player.Name, Color3.fromRGB(255, 255, 0))
-            else
-                removeESP(player.Character)
+    if espEnabled then
+        for _, object in ipairs(workspace:GetDescendants()) do
+            if object:IsA("Model") and object:FindFirstChild("Humanoid") and object:FindFirstChild("HumanoidRootPart") then
+                local highlight = Instance.new("Highlight")
+                highlight.Name = "ESPHighlight"
+                highlight.FillColor = Color3.new(1, 0, 0)
+                highlight.OutlineColor = Color3.new(0, 1, 0)
+                highlight.FillTransparency = 0.3
+                highlight.OutlineTransparency = 0
+                highlight.Parent = object
+                table.insert(highlights, highlight)
             end
         end
+    else
+        for _, hl in ipairs(highlights) do
+            hl:Destroy()
+        end
+        highlights = {}
     end
 end
-
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function(character)
-        if espEnabled then
-            createESP(character, player.Name, Color3.fromRGB(255, 255, 0))
-        end
-    end)
-end)
 
 local aimbotEnabled = false
 local function toggleAimbot()
     aimbotEnabled = not aimbotEnabled
     if aimbotEnabled then
-        local Players = game:GetService("Players")
-        local player = Players.LocalPlayer
-        local mouse = player:GetMouse()
-        game:GetService("RunService").RenderStepped:Connect(function()
+        local runService = game:GetService("RunService")
+        local mouse = LocalPlayer:GetMouse()
+        runService.RenderStepped:Connect(function()
             if aimbotEnabled then
                 local closest = nil
                 local closestDist = math.huge
                 for _, p in ipairs(Players:GetPlayers()) do
-                    if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
                         local dist = (mouse.Hit.Position - p.Character.HumanoidRootPart.Position).Magnitude
                         if dist < closestDist then
                             closestDist = dist
@@ -269,36 +241,34 @@ local godmodeEnabled = false
 local function toggleGodmode()
     godmodeEnabled = not godmodeEnabled
     if godmodeEnabled then
-        local player = game.Players.LocalPlayer
         local runService = game:GetService("RunService")
         runService.Heartbeat:Connect(function()
-            if godmodeEnabled and player.Character and player.Character:FindFirstChild("Humanoid") then
-                player.Character.Humanoid.Health = player.Character.Humanoid.MaxHealth
+            if godmodeEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                LocalPlayer.Character.Humanoid.Health = LocalPlayer.Character.Humanoid.MaxHealth
             end
         end)
     end
 end
 
 local speedHackEnabled = false
+local speedValue = 50
 local function toggleSpeedHack()
     speedHackEnabled = not speedHackEnabled
-    local player = game.Players.LocalPlayer
-    if player.Character and player.Character:FindFirstChild("Humanoid") then
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
         if speedHackEnabled then
-            player.Character.Humanoid.WalkSpeed = speedValue
+            LocalPlayer.Character.Humanoid.WalkSpeed = speedValue
         else
-            player.Character.Humanoid.WalkSpeed = 16
+            LocalPlayer.Character.Humanoid.WalkSpeed = 16
         end
     end
 end
 
 local function setInfiniteBonds()
-    local player = game.Players.LocalPlayer
-    local leaderstats = player:FindFirstChild("leaderstats")
+    local leaderstats = LocalPlayer:FindFirstChild("leaderstats")
     if leaderstats and leaderstats:FindFirstChild("Bonds") then
         leaderstats.Bonds.Value = 999999
     else
-        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Error", Text = "leaderstats or Bonds not found! Use Auto Farm instead.", Duration = 3})
+        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Error", Text = "Bonds not found!", Duration = 3})
     end
 end
 
@@ -307,8 +277,7 @@ local function toggleAutoFarmBonds()
     autoFarmBondsEnabled = not autoFarmBondsEnabled
     if autoFarmBondsEnabled then
         local runService = game:GetService("RunService")
-        local player = game.Players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
+        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
         local hrp = character:WaitForChild("HumanoidRootPart")
 
         runService.Heartbeat:Connect(function()
@@ -316,7 +285,7 @@ local function toggleAutoFarmBonds()
                 for _, bond in ipairs(workspace:GetDescendants()) do
                     if string.find(bond.Name:lower(), "bond") and (bond:IsA("Part") or bond:IsA("Model")) then
                         bond.CFrame = hrp.CFrame * CFrame.new(0, 0, -2)
-                        wait(0.2)
+                        wait(0.3)
                     end
                 end
             end
@@ -327,27 +296,23 @@ end
 local noClipEnabled = false
 local function toggleNoClip()
     noClipEnabled = not noClipEnabled
-    local character = LocalPlayer.Character
-    if character then
-        if noClipEnabled then
-            local runService = game:GetService("RunService")
-            runService.Stepped:Connect(function()
-                if noClipEnabled and character then
-                    for _, part in ipairs(character:GetDescendants()) do
-                        if part:IsA("BasePart") then
-                            part.CanCollide = false
-                        end
+    if noClipEnabled then
+        local runService = game:GetService("RunService")
+        runService.Stepped:Connect(function()
+            if noClipEnabled and LocalPlayer.Character then
+                for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
                     end
                 end
-            end)
-        end
+            end
+        end)
     end
 end
 
 local function tpToEnd()
-    local player = game.Players.LocalPlayer
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)  -- Замени на реальные координаты
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)  -- Замени на реальные координаты конца карты
     end
 end
 
@@ -358,7 +323,7 @@ local sliders = {}
 
 for i, tabName in ipairs(tabs) do
     local TabButton = Instance.new("TextButton")
-    TabButton.Size = UDim2.new(1, -10, 0, 35)  -- Уменьшенные кнопки для миниатюрности
+    TabButton.Size = UDim2.new(1, -10, 0, 35)
     TabButton.Position = UDim2.new(0, 5, 0, (i-1)*40)
     TabButton.BackgroundColor3 = Color3.fromRGB(60, 20, 100)
     TabButton.BorderSizePixel = 0
@@ -391,12 +356,14 @@ for i, tabName in ipairs(tabs) do
             sliders.AimbotSlider.Visible = true
             sliders.GodmodeSlider.Visible = true
         elseif tabName == "Farming" then
-            sliders.InfiniteBondsButton.Visible = true
+            sliders.InfiniteBondsSlider.Visible = true
             sliders.AutoFarmBondsSlider.Visible = true
         elseif tabName == "Movement" then
             sliders.SpeedHackSlider.Visible = true
             sliders.NoClipSlider.Visible = true
-            sliders.TPToEndButton.Visible = true
+            sliders.TPToEndSlider.Visible = true
+        elseif tabName == "Info" then
+            sliders.InfoLabel.Visible = true
         end
     end)
 
@@ -411,17 +378,17 @@ for i, tabName in ipairs(tabs) do
         sliders.AimbotSlider.Visible = false
         sliders.GodmodeSlider.Visible = false
     elseif tabName == "Farming" then
-        sliders.InfiniteBondsButton = createSlider(ContentFrame, "Infinite Bonds", 10, setInfiniteBonds, false, false)
+        sliders.InfiniteBondsSlider = createSlider(ContentFrame, "Infinite Bonds", 10, setInfiniteBonds, false, false)
         sliders.AutoFarmBondsSlider = createSlider(ContentFrame, "Auto Farm Bonds", 60, toggleAutoFarmBonds, autoFarmBondsEnabled, false)
-        sliders.InfiniteBondsButton.Visible = false
+        sliders.InfiniteBondsSlider.Visible = false
         sliders.AutoFarmBondsSlider.Visible = false
     elseif tabName == "Movement" then
         sliders.SpeedHackSlider = createSlider(ContentFrame, "Speed Hack", 10, toggleSpeedHack, speedHackEnabled, true)
         sliders.NoClipSlider = createSlider(ContentFrame, "NoClip", 80, toggleNoClip, noClipEnabled, false)
-        sliders.TPToEndButton = createSlider(ContentFrame, "TP to End", 130, tpToEnd, false, false)
+        sliders.TPToEndSlider = createSlider(ContentFrame, "TP to End", 130, tpToEnd, false, false)
         sliders.SpeedHackSlider.Visible = false
         sliders.NoClipSlider.Visible = false
-        sliders.TPToEndButton.Visible = false
+        sliders.TPToEndSlider.Visible = false
     elseif tabName == "Info" then
         sliders.InfoLabel = createSlider(ContentFrame, "Расширенный GUI для Dead Rails", 10, function() end, false, false)
         sliders.InfoLabel.Visible = false
@@ -436,6 +403,6 @@ end
 
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Скрипт Dead Rails загружен",
-    Text = "GUI с функциями от Grok",
+    Text = "GUI с новыми функциями для Dead Rails",
     Duration = 5
 })
