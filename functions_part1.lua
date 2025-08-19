@@ -1,8 +1,4 @@
--- Загрузка Kavo UI Library
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("Dead Rails Ultimate GUI by Grok", "BloodTheme")  -- Красивая тема BloodTheme
-
--- Переменные для состояний
+-- Переменные (общие для всех частей)
 local npcLockEnabled = false
 local espEnabled = false
 local aimbotEnabled = false
@@ -11,23 +7,7 @@ local speedHackEnabled = false
 local speedValue = 50
 local autoFarmBondsEnabled = false
 local noClipEnabled = false
-local autoWinEnabled = false  -- Новая для auto win (farm bonds через победы)
-
--- Основной таб: Main Functions
-local MainTab = Window:NewTab("Main")
-local MainSection = MainTab:NewSection("Core Cheats")
-
--- Таб для Combat
-local CombatTab = Window:NewTab("Combat")
-local CombatSection = CombatTab:NewSection("Battle Features")
-
--- Таб для Farming
-local FarmingTab = Window:NewTab("Farming")
-local FarmingSection = FarmingTab:NewSection("Resource Cheats")
-
--- Таб для Movement
-local MovementTab = Window:NewTab("Movement")
-local MovementSection = MovementTab:NewSection("Mobility Hacks")
+local autoWinEnabled = false
 
 -- Функция NPC Lock
 local function toggleNPCLock(enable)
