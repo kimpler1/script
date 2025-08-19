@@ -1,13 +1,16 @@
--- Загрузка Rayfield UI Library (похожа на Kavo, с mobile drag support)
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-local Window = Rayfield:CreateWindow({
-    Name = "Dead Rails Ultimate GUI by Grok",
-    LoadingTitle = "Загрузка...",
-    LoadingSubtitle = "by Grok",
-    ConfigurationSaving = {Enabled = false}
-})
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/GreenDeno/Venyx-UI-Library/main/source.lua"))()
+local venyx = library.new("Dead Rails Ultimate GUI by Grok")
 
--- Переменные для состояний
+local themes = {
+    Background = Color3.fromRGB(20, 20, 20),
+    Glow = Color3.fromRGB(0, 0, 0),
+    Accent = Color3.fromRGB(255, 0, 0),
+    LightContrast = Color3.fromRGB(30, 30, 30),
+    DarkContrast = Color3.fromRGB(10, 10, 10),
+    TextColor = Color3.fromRGB(255, 255, 255)
+}
+venyx.themes = themes
+
 local npcLockEnabled = false
 local espEnabled = false
 local aimbotEnabled = false
@@ -17,27 +20,21 @@ local speedValue = 50
 local autoFarmBondsEnabled = false
 local noClipEnabled = false
 
--- Основной таб: Main
-local MainTab = Window:CreateTab("Main")
-local MainSection = MainTab:CreateSection("Core Cheats")
+local MainPage = venyx:addPage("Main", 5012544693)
+local MainSection = MainPage:addSection("Core Cheats")
 
--- Таб для Combat
-local CombatTab = Window:CreateTab("Combat")
-local CombatSection = CombatTab:CreateSection("Battle Features")
+local CombatPage = venyx:addPage("Combat", 5012544693)
+local CombatSection = CombatPage:addSection("Battle Features")
 
--- Таб для Farming
-local FarmingTab = Window:CreateTab("Farming")
-local FarmingSection = FarmingTab:CreateSection("Resource Cheats")
+local FarmingPage = venyx:addPage("Farming", 5012544693)
+local FarmingSection = FarmingPage:addSection("Resource Cheats")
 
--- Таб для Movement
-local MovementTab = Window:CreateTab("Movement")
-local MovementSection = MovementTab:CreateSection("Mobility Hacks")
+local MovementPage = venyx:addPage("Movement", 5012544693)
+local MovementSection = MovementPage:addSection("Mobility Hacks")
 
--- Таб для Info
-local InfoTab = Window:CreateTab("Info")
-local InfoSection = InfoTab:CreateSection("Details")
+local InfoPage = venyx:addPage("Info", 5012544693)
+local InfoSection = InfoPage:addSection("Details")
 
--- Функции (остались те же)
 local function toggleNPCLock(enable)
     npcLockEnabled = enable
     if enable then
@@ -150,11 +147,7 @@ local function setInfiniteBonds()
     if leaderstats and leaderstats:FindFirstChild("Bonds") then
         leaderstats.Bonds.Value = 999999
     else
-        Rayfield:Notify({
-            Title = "Error",
-            Content = "leaderstats or Bonds not found! Use Auto Farm instead.",
-            Duration = 3
-        })
+        venyx:Notify("Error", "leaderstats or Bonds not found! Use Auto Farm instead.")
     end
 end
 
@@ -181,9 +174,9 @@ end
 
 local function toggleNoClip(enable)
     noClipEnabled = enable
+    local player = game.Players.LocalPlayer
+    local runService = game:GetService("RunService")
     if enable then
-        local runService = game:GetService("RunService")
-        local player = game.Players.LocalPlayer
         runService.Stepped:Connect(function()
             if noClipEnabled and player.Character then
                 for _, part in ipairs(player.Character:GetDescendants()) do
@@ -199,14 +192,20 @@ end
 local function tpToEnd()
     local player = game.Players.LocalPlayer
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)  -- Замени на реальные координаты
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)
     end
 end
 
--- Функция для полного закрытия GUI
 local function closeGUI()
-    Rayfield:Destroy()
-    -- Очистка состояний
+    venyx:toggle()
+    wait(0.1)
+    venyx = nil
+    local coreGui = game:GetService("CoreGui")
+    for _, gui in ipairs(coreGui:GetChildren()) do
+        if gui:IsA("ScreenGui") and gui.Name == "Venyx" then
+            gui:Destroy()
+        end
+    end
     npcLockEnabled = false
     espEnabled = false
     aimbotEnabled = false
@@ -216,106 +215,57 @@ local function closeGUI()
     noClipEnabled = false
 end
 
--- Элементы GUI
-MainSection:CreateToggle({
-    Name = "NPC Lock",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleNPCLock(Value)
+MainSection:addToggle("NPC Lock", false, function(value)
+    toggleNPCLock(value)
+end)
+
+MainSection:addToggle("ESP (Wallhack)", false, function(value)
+    toggleESP(value)
+end)
+
+CombatSection:addToggle("Aimbot", false, function(value)
+    toggleAimbot(value)
+end)
+
+CombatSection:addToggle("Godmode", false, function(value)
+    toggleGodmode(value)
+end)
+
+FarmingSection:addButton("Infinite Bonds", function()
+    setInfiniteBonds()
+end)
+
+FarmingSection:addToggle("Auto Farm Bonds", false, function(value)
+    toggleAutoFarmBonds(value)
+end)
+
+MovementSection:addToggle("Speed Hack", false, function(value)
+    toggleSpeedHack(value)
+end)
+
+MovementSection:addSlider("Speed Value", 50, 16, 100, function(value)
+    speedValue = value
+    if speedHackEnabled then
+        toggleSpeedHack(true)
     end
-})
+end)
 
-MainSection:CreateToggle({
-    Name = "ESP (Wallhack)",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleESP(Value)
-    end
-})
+MovementSection:addToggle("NoClip", false, function(value)
+    toggleNoClip(value)
+end)
 
-CombatSection:CreateToggle({
-    Name = "Aimbot",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleAimbot(Value)
-    end
-})
+MovementSection:addButton("TP to End", function()
+    tpToEnd()
+end)
 
-CombatSection:CreateToggle({
-    Name = "Godmode",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleGodmode(Value)
-    end
-})
+InfoSection:addLabel("Расширенный GUI для Dead Rails на Venyx UI")
+InfoSection:addLabel("Миниатюрный, кастомизируемый через themes")
+InfoSection:addLabel("Используй на свой риск!")
 
-FarmingSection:CreateButton({
-    Name = "Infinite Bonds",
-    Callback = function()
-        setInfiniteBonds()
-    end
-})
+InfoSection:addButton("Close GUI", function()
+    closeGUI()
+end)
 
-FarmingSection:CreateToggle({
-    Name = "Auto Farm Bonds",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleAutoFarmBonds(Value)
-    end
-})
+venyx:Notify("GUI Loaded", "Venyx UI - миниатюрная и изменяемая, с кнопкой закрытия!")
 
-MovementSection:CreateToggle({
-    Name = "Speed Hack",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleSpeedHack(Value)
-    end
-})
-
-MovementSection:CreateSlider({
-    Name = "Speed Value",
-    Range = {16, 100},
-    Increment = 1,
-    Suffix = "Speed",
-    CurrentValue = 50,
-    Callback = function(Value)
-        speedValue = Value
-        if speedHackEnabled then
-            toggleSpeedHack(true)
-        end
-    end
-})
-
-MovementSection:CreateToggle({
-    Name = "NoClip",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleNoClip(Value)
-    end
-})
-
-MovementSection:CreateButton({
-    Name = "TP to End",
-    Callback = function()
-        tpToEnd()
-    end
-})
-
-InfoSection:CreateLabel("Расширенный GUI для Dead Rails на Rayfield UI")
-InfoSection:CreateLabel("Поддержка drag на телефоне")
-InfoSection:CreateLabel("Используй на свой риск!")
-
--- Кнопка закрытия
-InfoSection:CreateButton({
-    Name = "Close GUI",
-    Callback = function()
-        closeGUI()
-    end
-})
-
--- Уведомление при запуске
-Rayfield:Notify({
-    Title = "GUI Loaded",
-    Content = "Теперь на Rayfield UI с drag на телефоне и кнопкой закрытия!",
-    Duration = 5
-})
+venyx:SelectPage(venyx.pages[1], true)
