@@ -1,11 +1,31 @@
--- Загрузка Rayfield UI Library (mobile-friendly, с drag на touch)
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-local Window = Rayfield:CreateWindow({
-    Name = "Dead Rails Ultimate GUI by Grok",
-    LoadingTitle = "Загрузка...",
-    LoadingSubtitle = "by Grok",
-    ConfigurationSaving = {Enabled = false}
-})
+-- Загрузка Orion Library (customizable UI для Roblox)
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Dead Rails Ultimate GUI by Grok", HidePremium = false, SaveConfig = false, ConfigFolder = "DeadRailsConfig"})
+
+-- Кастомная тема для выделения (можно менять цвета, стили)
+OrionLib.Themes["Custom"] = {
+    Main = Color3.fromRGB(30, 30, 30),  -- Тёмный фон
+    Second = Color3.fromRGB(20, 20, 20),  -- Вторичный
+    Stroke = Color3.fromRGB(255, 0, 0),  -- Красный контур
+    Divider = Color3.fromRGB(50, 50, 50),
+    Text = Color3.fromRGB(255, 255, 255),
+    TextDark = Color3.fromRGB(200, 200, 200),
+    TabText = Color3.fromRGB(255, 255, 255),
+    TabTextDark = Color3.fromRGB(180, 180, 180),
+    Tab = Color3.fromRGB(40, 40, 40),
+    Background = Color3.fromRGB(25, 25, 25),
+    BackgroundDark = Color3.fromRGB(15, 15, 15),
+    TabDivider = Color3.fromRGB(255, 0, 0)  -- Красный разделитель
+}
+OrionLib:SelectTheme("Custom")  -- Применяем кастомную тему
+
+-- Уменьшение размера окна в 1.5 раза (кастом для мобильного)
+wait(0.1)
+local coreGui = game:GetService("CoreGui")
+local orionGui = coreGui:FindFirstChild("Orion")
+if orionGui then
+    orionGui.Main.Size = UDim2.new(0, 400, 0, 300)  -- Уменьшено от стандартного ~600x450
+end
 
 -- Переменные для состояний
 local npcLockEnabled = false
@@ -18,24 +38,24 @@ local autoFarmBondsEnabled = false
 local noClipEnabled = false
 
 -- Основной таб: Main
-local MainTab = Window:CreateTab("Main", nil) -- Иконка опционально
-local MainSection = MainTab:CreateSection("Core Cheats")
+local MainTab = Window:MakeTab({Name = "Main", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+local MainSection = MainTab:AddSection({Name = "Core Cheats"})
 
 -- Таб для Combat
-local CombatTab = Window:CreateTab("Combat", nil)
-local CombatSection = CombatTab:CreateSection("Battle Features")
+local CombatTab = Window:MakeTab({Name = "Combat", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+local CombatSection = CombatTab:AddSection({Name = "Battle Features"})
 
 -- Таб для Farming
-local FarmingTab = Window:CreateTab("Farming", nil)
-local FarmingSection = FarmingTab:CreateSection("Resource Cheats")
+local FarmingTab = Window:MakeTab({Name = "Farming", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+local FarmingSection = FarmingTab:AddSection({Name = "Resource Cheats"})
 
 -- Таб для Movement
-local MovementTab = Window:CreateTab("Movement", nil)
-local MovementSection = MovementTab:CreateSection("Mobility Hacks")
+local MovementTab = Window:MakeTab({Name = "Movement", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+local MovementSection = MovementTab:AddSection({Name = "Mobility Hacks"})
 
 -- Таб для Info
-local InfoTab = Window:CreateTab("Info", nil)
-local InfoSection = InfoTab:CreateSection("Details")
+local InfoTab = Window:MakeTab({Name = "Info", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+local InfoSection = InfoTab:AddSection({Name = "Details"})
 
 -- Функции (остались те же)
 local function toggleNPCLock(enable)
@@ -150,11 +170,7 @@ local function setInfiniteBonds()
     if leaderstats and leaderstats:FindFirstChild("Bonds") then
         leaderstats.Bonds.Value = 999999
     else
-        Rayfield:Notify({
-            Title = "Error",
-            Content = "leaderstats or Bonds not found! Use Auto Farm instead.",
-            Duration = 3
-        })
+        OrionLib:MakeNotification({Name = "Error", Content = "leaderstats or Bonds not found! Use Auto Farm instead.", Image = "rbxassetid://4483345998", Time = 3})
     end
 end
 
@@ -203,98 +219,59 @@ local function tpToEnd()
     end
 end
 
--- Элементы GUI (адаптировано под Rayfield)
-MainSection:CreateToggle({
-    Name = "NPC Lock",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleNPCLock(Value)
+-- Элементы GUI (адаптировано под Orion)
+MainSection:AddToggle({Name = "NPC Lock", Default = false, Callback = function(Value)
+    toggleNPCLock(Value)
+end})
+
+MainSection:AddToggle({Name = "ESP (Wallhack)", Default = false, Callback = function(Value)
+    toggleESP(Value)
+end})
+
+CombatSection:AddToggle({Name = "Aimbot", Default = false, Callback = function(Value)
+    toggleAimbot(Value)
+end})
+
+CombatSection:AddToggle({Name = "Godmode", Default = false, Callback = function(Value)
+    toggleGodmode(Value)
+end})
+
+FarmingSection:AddButton({Name = "Infinite Bonds", Callback = function()
+    setInfiniteBonds()
+end})
+
+FarmingSection:AddToggle({Name = "Auto Farm Bonds", Default = false, Callback = function(Value)
+    toggleAutoFarmBonds(Value)
+end})
+
+MovementSection:AddToggle({Name = "Speed Hack", Default = false, Callback = function(Value)
+    toggleSpeedHack(Value)
+end})
+
+MovementSection:AddSlider({Name = "Speed Value", Min = 16, Max = 100, Increment = 1, Default = 50, Callback = function(Value)
+    speedValue = Value
+    if speedHackEnabled then
+        toggleSpeedHack(true)
     end
-})
+end})
 
-MainSection:CreateToggle({
-    Name = "ESP (Wallhack)",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleESP(Value)
-    end
-})
+MovementSection:AddToggle({Name = "NoClip", Default = false, Callback = function(Value)
+    toggleNoClip(Value)
+end})
 
-CombatSection:CreateToggle({
-    Name = "Aimbot",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleAimbot(Value)
-    end
-})
+MovementSection:AddButton({Name = "TP to End", Callback = function()
+    tpToEnd()
+end})
 
-CombatSection:CreateToggle({
-    Name = "Godmode",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleGodmode(Value)
-    end
-})
+InfoSection:AddLabel("Расширенный GUI для Dead Rails")
+InfoSection:AddLabel("На Orion Lib с кастом темой для уникальности!")
+InfoSection:AddLabel("Используй на свой риск!")
 
-FarmingSection:CreateButton({
-    Name = "Infinite Bonds",
-    Callback = function()
-        setInfiniteBonds()
-    end
-})
-
-FarmingSection:CreateToggle({
-    Name = "Auto Farm Bonds",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleAutoFarmBonds(Value)
-    end
-})
-
-MovementSection:CreateToggle({
-    Name = "Speed Hack",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleSpeedHack(Value)
-    end
-})
-
-MovementSection:CreateSlider({
-    Name = "Speed Value",
-    Range = {16, 100},
-    Increment = 1,
-    Suffix = "Speed",
-    CurrentValue = 50,
-    Callback = function(Value)
-        speedValue = Value
-        if speedHackEnabled then
-            toggleSpeedHack(true)
-        end
-    end
-})
-
-MovementSection:CreateToggle({
-    Name = "NoClip",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleNoClip(Value)
-    end
-})
-
-MovementSection:CreateButton({
-    Name = "TP to End",
-    Callback = function()
-        tpToEnd()
-    end
-})
-
-InfoSection:CreateLabel("Расширенный GUI для Dead Rails")
-InfoSection:CreateLabel("На Rayfield UI — draggable на mobile!")
-InfoSection:CreateLabel("Используй на свой риск!")
-
--- Уведомление при запуске
-Rayfield:Notify({
-    Title = "GUI Loaded",
-    Content = "Теперь с drag на телефоне и уменьшенным размером!",
-    Duration = 5
+-- Инициализация и уведомление
+OrionLib:Init()
+OrionLib:MakeNotification({
+    Name = "GUI Loaded",
+    Content = "Orion Lib с кастомизацией — теперь выделяешься!",
+    Image = "rbxassetid://4483345998",
+    Time = 5
 })
