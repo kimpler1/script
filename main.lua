@@ -16,8 +16,8 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 200, 0, 200)
-MainFrame.Position = UDim2.new(0.5, -150, 0.5, -150)
+MainFrame.Size = UDim2.new(0, 300, 0, 225)  -- Уменьшено на 25% от 400x300 (400*0.75=300, 300*0.75=225)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -112.5)
 MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
@@ -58,7 +58,7 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 local TabContainer = Instance.new("Frame")
-TabContainer.Size = UDim2.new(0, 100, 1, 0)
+TabContainer.Size = UDim2.new(0, 75, 1, 0)  -- Уменьшено на 25% от 100
 TabContainer.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
 TabContainer.BorderSizePixel = 0
 TabContainer.Parent = MainFrame
@@ -67,14 +67,14 @@ TabCorner.CornerRadius = UDim.new(0, 10)
 TabCorner.Parent = TabContainer
 
 local ContentFrame = Instance.new("ScrollingFrame")
-ContentFrame.Size = UDim2.new(0, 300, 1, 0)
-ContentFrame.Position = UDim2.new(0, 100, 0, 0)
+ContentFrame.Size = UDim2.new(0, 225, 1, 0)  -- Уменьшено на 25% от 300
+ContentFrame.Position = UDim2.new(0, 75, 0, 0)
 ContentFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 ContentFrame.BorderSizePixel = 0
 ContentFrame.Parent = MainFrame
 ContentFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-ContentFrame.ScrollBarThickness = 10
+ContentFrame.ScrollBarThickness = 8  -- Уменьшено для пропорций
 ContentFrame.ScrollingDirection = Enum.ScrollingDirection.Y
 local ContentCorner = Instance.new("UICorner")
 ContentCorner.CornerRadius = UDim.new(0, 10)
@@ -82,12 +82,12 @@ ContentCorner.Parent = ContentFrame
 
 local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.Padding = UDim.new(0, 4)  -- Уменьшено для компактности
 UIListLayout.Parent = ContentFrame
 
 local MinimizeButton = Instance.new("TextButton")
-MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
-MinimizeButton.Position = UDim2.new(1, -70, 0, 5)
+MinimizeButton.Size = UDim2.new(0, 23, 0, 23)  -- Уменьшено на 25% от 30
+MinimizeButton.Position = UDim2.new(1, -52.5, 0, 3.75)
 MinimizeButton.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
 MinimizeButton.BorderSizePixel = 0
 MinimizeButton.Text = "▲"
@@ -99,8 +99,8 @@ MinimizeCorner.CornerRadius = UDim.new(0, 5)
 MinimizeCorner.Parent = MinimizeButton
 
 local CloseButton = Instance.new("TextButton")
-CloseButton.Size = UDim2.new(0, 30, 0, 30)
-CloseButton.Position = UDim2.new(1, -35, 0, 5)
+CloseButton.Size = UDim2.new(0, 23, 0, 23)
+CloseButton.Position = UDim2.new(1, -26.25, 0, 3.75)
 CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 CloseButton.BorderSizePixel = 0
 CloseButton.Text = "X"
@@ -112,14 +112,14 @@ CloseCorner.CornerRadius = UDim.new(0, 5)
 CloseCorner.Parent = CloseButton
 
 local MinimizedFrame = Instance.new("Frame")
-MinimizedFrame.Size = UDim2.new(0, 65, 0, 30)
-MinimizedFrame.Position = UDim2.new(1, -75, 0, 5)
+MinimizedFrame.Size = UDim2.new(0, 48.75, 0, 22.5)  -- Уменьшено на 25% от 65x30
+MinimizedFrame.Position = UDim2.new(1, -56.25, 0, 3.75)
 MinimizedFrame.BackgroundTransparency = 1
 MinimizedFrame.Parent = ScreenGui
 MinimizedFrame.Visible = false
 
 local MaximizeButton = Instance.new("TextButton")
-MaximizeButton.Size = UDim2.new(0, 30, 0, 30)
+MaximizeButton.Size = UDim2.new(0, 22.5, 0, 22.5)
 MaximizeButton.Position = UDim2.new(0, 0, 0, 0)
 MaximizeButton.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
 MaximizeButton.BorderSizePixel = 0
@@ -132,8 +132,8 @@ MaximizeCorner.CornerRadius = UDim.new(0, 5)
 MaximizeCorner.Parent = MaximizeButton
 
 local CloseButtonMinimized = Instance.new("TextButton")
-CloseButtonMinimized.Size = UDim2.new(0, 30, 0, 30)
-CloseButtonMinimized.Position = UDim2.new(0, 35, 0, 0)
+CloseButtonMinimized.Size = UDim2.new(0, 22.5, 0, 22.5)
+CloseButtonMinimized.Position = UDim2.new(0, 26.25, 0, 0)
 CloseButtonMinimized.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 CloseButtonMinimized.BorderSizePixel = 0
 CloseButtonMinimized.Text = "X"
@@ -224,7 +224,7 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
 
     if hasSpeedSlider then
         local SpeedSliderBackground = Instance.new("Frame")
-        SpeedSliderBackground.Size = UDim2.new(0, 260, 0, 10)
+        SpeedSliderBackground.Size = UDim2.new(0, 195, 0, 10)  -- Уменьшено на 25% от 260
         SpeedSliderBackground.Position = UDim2.new(0, 10, 0, 40)
         SpeedSliderBackground.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
         SpeedSliderBackground.BackgroundTransparency = 0.5
@@ -235,8 +235,8 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         SpeedSliderCorner.Parent = SpeedSliderBackground
 
         local SpeedSliderKnob = Instance.new("TextButton")
-        SpeedSliderKnob.Size = UDim2.new(0, 26, 0, 26)
-        SpeedSliderKnob.Position = UDim2.new(0, (speedValue / 100) * (260 - 26), 0, -8)
+        SpeedSliderKnob.Size = UDim2.new(0, 19.5, 0, 19.5)  -- Уменьшено на 25% от 26
+        SpeedSliderKnob.Position = UDim2.new(0, (speedValue / 100) * (195 - 19.5), 0, -6)
         SpeedSliderKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         SpeedSliderKnob.BorderSizePixel = 0
         SpeedSliderKnob.Text = ""
@@ -267,7 +267,7 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
                 local relativeX = mouseX - sliderPosX
                 local normalizedPos = math.clamp(relativeX / sliderWidth, 0, 1)
                 local newPosX = normalizedPos * (sliderWidth - knobWidth)
-                SpeedSliderKnob.Position = UDim2.new(0, newPosX, 0, -8)
+                SpeedSliderKnob.Position = UDim2.new(0, newPosX, 0, -6)
                 speedValue = math.floor(normalizedPos * 100)
                 if speedHackEnabled then
                     toggleSpeedHack()
@@ -375,6 +375,6 @@ end
 
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Скрипт Dead Rails загружен",
-    Text = "GUI с функциями от Grok",
+    Text = "GUI с функциями от Grok, уменьшено на 25%",
     Duration = 5
 })
