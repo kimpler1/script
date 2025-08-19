@@ -1,6 +1,18 @@
--- Загрузка Kavo UI Library
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+-- Загрузка mobile-compatible Kavo UI Library (с фиксом drag на телефоне)
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/S33R-Of-1ndia/Kavo-Mobile-Fix/main/source.lua"))()
 local Window = Library.CreateLib("Dead Rails Ultimate GUI by Grok", "BloodTheme")  -- Красивая тема BloodTheme
+
+-- Уменьшение размера GUI в 1.5 раза (после создания)
+wait(0.1)  -- Дождаться создания UI
+local title = "Dead Rails Ultimate GUI by Grok"
+local coreGui = game:GetService("CoreGui")
+local gui = coreGui:FindFirstChild(title)
+if gui then
+    local main = gui:FindFirstChild("Main")
+    if main then
+        main.Size = UDim2.new(0, 331, 0, 286)  -- Уменьшено в 1.5 раза от оригинала 496x429
+    end
+end
 
 -- Переменные для состояний
 local npcLockEnabled = false
@@ -28,7 +40,7 @@ local FarmingSection = FarmingTab:NewSection("Resource Cheats")
 local MovementTab = Window:NewTab("Movement")
 local MovementSection = MovementTab:NewSection("Mobility Hacks")
 
--- Функция NPC Lock (из оригинального скрипта, адаптировано)
+-- Функции (остались те же, с фиксом Bonds)
 local function toggleNPCLock(enable)
     npcLockEnabled = enable
     if enable then
@@ -59,7 +71,6 @@ local function toggleNPCLock(enable)
     end
 end
 
--- Функция ESP (с кастомным цветом)
 local highlights = {}
 local function toggleESP(enable)
     espEnabled = enable
@@ -68,9 +79,9 @@ local function toggleESP(enable)
             if object:IsA("Model") and object:FindFirstChild("Humanoid") and object:FindFirstChild("HumanoidRootPart") then
                 local highlight = Instance.new("Highlight")
                 highlight.Name = "ESPHighlight"
-                highlight.FillColor = Color3.new(1, 0, 0)  -- Красный для стиля
-                highlight.OutlineColor = Color3.new(0, 1, 0)  -- Зелёный контур
-                highlight.FillTransparency = 0.3  -- Меньше прозрачности для яркости
+                highlight.FillColor = Color3.new(1, 0, 0)
+                highlight.OutlineColor = Color3.new(0, 1, 0)
+                highlight.FillTransparency = 0.3
                 highlight.OutlineTransparency = 0
                 highlight.Parent = object
                 table.insert(highlights, highlight)
@@ -84,7 +95,6 @@ local function toggleESP(enable)
     end
 end
 
--- Функция Aimbot
 local function toggleAimbot(enable)
     aimbotEnabled = enable
     if enable then
@@ -112,7 +122,6 @@ local function toggleAimbot(enable)
     end
 end
 
--- Функция Godmode (бессмертие)
 local function toggleGodmode(enable)
     godmodeEnabled = enable
     if enable then
@@ -126,7 +135,6 @@ local function toggleGodmode(enable)
     end
 end
 
--- Функция Speed Hack (с слайдером)
 local function toggleSpeedHack(enable)
     speedHackEnabled = enable
     local player = game.Players.LocalPlayer
@@ -134,12 +142,11 @@ local function toggleSpeedHack(enable)
         if enable then
             player.Character.Humanoid.WalkSpeed = speedValue
         else
-            player.Character.Humanoid.WalkSpeed = 16  -- Стандартная скорость
+            player.Character.Humanoid.WalkSpeed = 16
         end
     end
 end
 
--- Переделанная функция: Infinite Bonds (теперь использует leaderstats — стандарт для Roblox валют)
 local function setInfiniteBonds()
     local player = game.Players.LocalPlayer
     local leaderstats = player:FindFirstChild("leaderstats")
@@ -150,7 +157,6 @@ local function setInfiniteBonds()
     end
 end
 
--- Переделанная функция: Auto Farm Bonds (теперь TP бондов к игроку, а не наоборот)
 local function toggleAutoFarmBonds(enable)
     autoFarmBondsEnabled = enable
     if enable then
@@ -163,8 +169,8 @@ local function toggleAutoFarmBonds(enable)
             if autoFarmBondsEnabled then
                 for _, bond in ipairs(workspace:GetDescendants()) do
                     if string.find(bond.Name:lower(), "bond") and (bond:IsA("Part") or bond:IsA("Model")) then
-                        bond.CFrame = hrp.CFrame * CFrame.new(0, 0, -2)  -- TP бонда к игроку (чуть впереди)
-                        wait(0.2)  -- Задержка для сбора
+                        bond.CFrame = hrp.CFrame * CFrame.new(0, 0, -2)
+                        wait(0.2)
                     end
                 end
             end
@@ -172,7 +178,6 @@ local function toggleAutoFarmBonds(enable)
     end
 end
 
--- Функция NoClip (прохождение через стены)
 local function toggleNoClip(enable)
     noClipEnabled = enable
     local player = game.Players.LocalPlayer
@@ -190,11 +195,10 @@ local function toggleNoClip(enable)
     end
 end
 
--- Функция TP to End (телепорт к концу; placeholder координаты)
 local function tpToEnd()
     local player = game.Players.LocalPlayer
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)  -- Замени на реальные координаты конца карты
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(1000, 100, 1000)  -- Замени на реальные координаты
     end
 end
 
@@ -230,7 +234,7 @@ end)
 MovementSection:NewSlider("Speed Value", "Значение скорости", 100, 16, function(value)
     speedValue = value
     if speedHackEnabled then
-        toggleSpeedHack(true)  -- Обновить
+        toggleSpeedHack(true)
     end
 end)
 
@@ -245,13 +249,13 @@ end)
 -- Таб для Info
 local InfoTab = Window:NewTab("Info")
 local InfoSection = InfoTab:NewSection("Details")
-InfoSection:NewLabel("Расширенный GUI для Dead Rails с фиксом Bonds")
-InfoSection:NewLabel("Тема: BloodTheme для стиля")
+InfoSection:NewLabel("Расширенный GUI для Dead Rails с фиксом для мобильных")
+InfoSection:NewLabel("Тема: BloodTheme, размер уменьшен")
 InfoSection:NewLabel("Используй на свой риск!")
 
 -- Уведомление
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "GUI Updated",
-    Text = "Infinite Bonds фикс (leaderstats) + Auto Farm теперь TP бондов к тебе!",
+    Text = "Теперь draggable на телефоне и меньше в 1.5 раза!",
     Duration = 5
 })
