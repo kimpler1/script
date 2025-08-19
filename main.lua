@@ -17,7 +17,7 @@ ScreenGui.IgnoreGuiInset = true
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 200, 0, 200)
-MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -150)
 MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
