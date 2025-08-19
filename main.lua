@@ -150,18 +150,21 @@ local function setInfiniteBonds()
     end
 end
 
--- Новая функция: Auto Farm Bonds (автосбор; placeholder, адаптируй под игру)
+-- Переделанная функция: Auto Farm Bonds (автосбор бондов, теперь ищет по имени с "Bond", TP последовательно)
 local function toggleAutoFarmBonds(enable)
     autoFarmBondsEnabled = enable
     if enable then
         local runService = game:GetService("RunService")
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
         runService.Heartbeat:Connect(function()
             if autoFarmBondsEnabled then
-                -- Placeholder: Автосбор бондов (ищи и телепортируйся к ним)
                 for _, bond in ipairs(workspace:GetDescendants()) do
-                    if bond.Name == "Bond" and bond:IsA("Part") then  -- Предполагаемое имя
-                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = bond.CFrame
-                        wait(0.5)  -- Задержка
+                    if string.find(bond.Name:lower(), "bond") and (bond:IsA("Part") or bond:IsA("Model")) then  -- Ищет "Bond" в имени, для Part или Model
+                        hrp.CFrame = bond.CFrame * CFrame.new(0, 3, 0)  -- TP чуть выше для надёжного сбора
+                        wait(0.3)  -- Задержка для сбора и избежания спама
                     end
                 end
             end
@@ -249,6 +252,6 @@ InfoSection:NewLabel("Используй на свой риск!")
 -- Уведомление
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "GUI Updated",
-    Text = "Dead Rails Cheats с новыми функциями и красивым видом!",
+    Text = "Auto Farm Bonds переделан — теперь работает на сбор bonds items!",
     Duration = 5
 })
