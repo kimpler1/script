@@ -1,4 +1,4 @@
--- Переменные (общие для всех частей)
+-- Переменные
 local npcLockEnabled = false
 local espEnabled = false
 local aimbotEnabled = false
@@ -17,7 +17,6 @@ local function toggleNPCLock(enable)
         local player = Players.LocalPlayer
         local runService = game:GetService("RunService")
         local camera = workspace.CurrentCamera
-        
         runService.RenderStepped:Connect(function()
             if npcLockEnabled then
                 local closestNPC = nil
