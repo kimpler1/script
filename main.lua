@@ -253,7 +253,7 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
             end
         end)
         -- Обновление позиции при изменении размера (для динамической ширины)
-        ContentFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+        SliderContainer:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
             local sliderWidth = SpeedSliderBackground.AbsoluteSize.X
             local knobWidth = SpeedSliderKnob.AbsoluteSize.X
             SpeedSliderKnob.Position = UDim2.new(0, (speedValue / 100) * (sliderWidth - knobWidth), 0, -7)
@@ -297,7 +297,7 @@ for i, tabName in ipairs(tabs) do
             sliders.GodmodeSlider.Visible = true
         elseif tabName == "Farming" then
             sliders.InfiniteBondsSlider.Visible = true
-            sliders.AutoFarmBondsSlider = true
+            sliders.AutoFarmBondsSlider.Visible = true
         elseif tabName == "Movement" then
             sliders.SpeedHackSlider.Visible = true
             sliders.NoClipSlider.Visible = true
@@ -305,14 +305,6 @@ for i, tabName in ipairs(tabs) do
         elseif tabName == "Info" then
             sliders.InfoLabel.Visible = true
         end
-        -- Обновить CanvasSize
-        local totalHeight = 0
-        for _, slider in pairs(sliders) do
-            if slider.Visible then
-                totalHeight = totalHeight + slider.AbsoluteSize.Y + UIListLayout.Padding.Offset
-            end
-        end
-        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
     end)
     if tabName == "Main" then
         sliders.NPCLockSlider = createSlider(ContentFrame, "NPC Lock", toggleNPCLock, npcLockEnabled, false)
@@ -347,13 +339,6 @@ if #tabButtons > 0 then
     tabButtons[1].BackgroundColor3 = Color3.fromRGB(75, 0, 130)
     sliders.NPCLockSlider.Visible = true
     sliders.ESPSlider.Visible = true
-    local totalHeight = 0
-    for _, slider in pairs(sliders) do
-        if slider.Visible then
-            totalHeight = totalHeight + slider.AbsoluteSize.Y + UIListLayout.Padding.Offset
-        end
-    end
-    ContentFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
 end
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Скрипт Dead Rails загружен",
