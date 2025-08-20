@@ -204,9 +204,10 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         toggleFunction()
     end)
     if hasSpeedSlider then
+        local speedValue = 50  -- Начальное значение скорости (0-100)
         local SpeedSliderBackground = Instance.new("Frame")
-        SpeedSliderBackground.Size = UDim2.new(0, 221, 0, 9)
-        SpeedSliderBackground.Position = UDim2.new(0, 9, 0, 34)
+        SpeedSliderBackground.Size = UDim2.new(1, -20, 0, 9)  -- Относительная ширина
+        SpeedSliderBackground.Position = UDim2.new(0, 10, 0, 34)
         SpeedSliderBackground.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
         SpeedSliderBackground.BackgroundTransparency = 0.5
         SpeedSliderBackground.BorderSizePixel = 0
@@ -216,7 +217,7 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         SpeedSliderCorner.Parent = SpeedSliderBackground
         local SpeedSliderKnob = Instance.new("TextButton")
         SpeedSliderKnob.Size = UDim2.new(0, 22, 0, 22)
-        SpeedSliderKnob.Position = UDim2.new(0, (speedValue / 100) * (221 - 22), 0, -7)
+        SpeedSliderKnob.Position = UDim2.new(0, (speedValue / 100) * (SpeedSliderBackground.Size.X.Offset - 22), 0, -7)
         SpeedSliderKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         SpeedSliderKnob.BorderSizePixel = 0
         SpeedSliderKnob.Text = ""
@@ -236,7 +237,7 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
             end
         end)
         UserInputService.InputChanged:Connect(function(input)
-            if draggingSpeed and input.UserInputType == Enum.UserInputType.Touch then
+            if draggingSpeed and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
                 local sliderPosX = SpeedSliderBackground.AbsolutePosition.X
                 local sliderWidth = SpeedSliderBackground.AbsoluteSize.X
                 local knobWidth = SpeedSliderKnob.AbsoluteSize.X
@@ -250,6 +251,12 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
                     toggleSpeedHack()
                 end
             end
+        end)
+        -- Обновление позиции при изменении размера (для динамической ширины)
+        ContentFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+            local sliderWidth = SpeedSliderBackground.AbsoluteSize.X
+            local knobWidth = SpeedSliderKnob.AbsoluteSize.X
+            SpeedSliderKnob.Position = UDim2.new(0, (speedValue / 100) * (sliderWidth - knobWidth), 0, -7)
         end)
     end
     return SliderContainer
@@ -290,7 +297,7 @@ for i, tabName in ipairs(tabs) do
             sliders.GodmodeSlider.Visible = true
         elseif tabName == "Farming" then
             sliders.InfiniteBondsSlider.Visible = true
-            sliders.AutoFarmBondsSlider.Visible = true
+            sliders.AutoFarmBondsSlider = true
         elseif tabName == "Movement" then
             sliders.SpeedHackSlider.Visible = true
             sliders.NoClipSlider.Visible = true
