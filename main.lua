@@ -13,6 +13,7 @@ ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 340, 0, 255)
 MainFrame.Position = UDim2.new(0.5, -170, 0.5, -128)
 MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
@@ -50,6 +51,7 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 local TabContainer = Instance.new("Frame")
+TabContainer.Name = "TabContainer"
 TabContainer.Size = UDim2.new(0, 85, 1, 0)
 TabContainer.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
 TabContainer.BorderSizePixel = 0
@@ -58,6 +60,7 @@ local TabCorner = Instance.new("UICorner")
 TabCorner.CornerRadius = UDim.new(0, 9)
 TabCorner.Parent = TabContainer
 local ContentFrame = Instance.new("ScrollingFrame")
+ContentFrame.Name = "ContentFrame"
 ContentFrame.Size = UDim2.new(0, 255, 1, 0)
 ContentFrame.Position = UDim2.new(0, 85, 0, 0)
 ContentFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
