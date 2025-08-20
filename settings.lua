@@ -40,10 +40,6 @@ if not UIPaddingContent then
     return
 end
 
--- Отключить клиппинг, чтобы контент мог выходить за пределы без укорачивания
-ContentFrame.ClipsDescendants = false
-TabContainer.ClipsDescendants = false
-
 -- Собрать tabButtons
 local tabButtons = {}
 for _, child in ipairs(TabContainer:GetChildren()) do
@@ -181,9 +177,10 @@ ContentLeftButton.Text = "←"
 ContentLeftButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ContentLeftButton.Parent = SettingsFrame
 ContentLeftButton.MouseButton1Click:Connect(function()
-    -- Сдвиг влево: уменьшить PaddingLeft
     local currentLeft = UIPaddingContent.PaddingLeft.Offset
-    UIPaddingContent.PaddingLeft = UDim.new(0, math.max(currentLeft - moveStep, -50))  -- Мин -50 для безопасности
+    local currentRight = UIPaddingContent.PaddingRight.Offset
+    UIPaddingContent.PaddingLeft = UDim.new(0, currentLeft - moveStep)
+    UIPaddingContent.PaddingRight = UDim.new(0, currentRight + moveStep)
 end)
 
 local ContentUpButton = Instance.new("TextButton")
@@ -194,7 +191,6 @@ ContentUpButton.Text = "↑"
 ContentUpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ContentUpButton.Parent = SettingsFrame
 ContentUpButton.MouseButton1Click:Connect(function()
-    -- Сдвиг вверх: уменьшить PaddingTop
     local currentTop = UIPaddingContent.PaddingTop.Offset
     UIPaddingContent.PaddingTop = UDim.new(0, math.max(currentTop - moveStep, -50))
 end)
@@ -207,7 +203,6 @@ ContentDownButton.Text = "↓"
 ContentDownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ContentDownButton.Parent = SettingsFrame
 ContentDownButton.MouseButton1Click:Connect(function()
-    -- Сдвиг вниз: увеличить PaddingTop
     local currentTop = UIPaddingContent.PaddingTop.Offset
     UIPaddingContent.PaddingTop = UDim.new(0, currentTop + moveStep)
 end)
@@ -220,9 +215,10 @@ ContentRightButton.Text = "→"
 ContentRightButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ContentRightButton.Parent = SettingsFrame
 ContentRightButton.MouseButton1Click:Connect(function()
-    -- Сдвиг вправо: увеличить PaddingLeft
     local currentLeft = UIPaddingContent.PaddingLeft.Offset
+    local currentRight = UIPaddingContent.PaddingRight.Offset
     UIPaddingContent.PaddingLeft = UDim.new(0, currentLeft + moveStep)
+    UIPaddingContent.PaddingRight = UDim.new(0, currentRight - moveStep)
 end)
 
 -- Настройка перемещения Tab (вкладок внутри TabContainer)
