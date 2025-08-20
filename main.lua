@@ -334,8 +334,19 @@ for i, tabName in ipairs(tabs) do
         sliders.InfoLabel.Visible = false
     end
 end
+-- Автоматически открыть первую вкладку без симуляции клика
 if #tabButtons > 0 then
-    tabButtons[1]:MouseButton1Click()
+    currentTab = tabButtons[1]
+    tabButtons[1].BackgroundColor3 = Color3.fromRGB(75, 0, 130)
+    sliders.NPCLockSlider.Visible = true
+    sliders.ESPSlider.Visible = true
+    local totalHeight = 0
+    for _, slider in pairs(sliders) do
+        if slider.Visible then
+            totalHeight = totalHeight + slider.AbsoluteSize.Y + UIListLayout.Padding.Offset
+        end
+    end
+    ContentFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
 end
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Скрипт Dead Rails загружен",
@@ -352,7 +363,7 @@ SettingsGui.IgnoreGuiInset = true
 
 local SettingsFrame = Instance.new("Frame")
 SettingsFrame.Size = UDim2.new(0, 200, 0, 150)
-SettingsFrame.Position = UDim2.new(0.5, -100, 0.5, -75)
+SettingsFrame.Position = UDim2.new(0, 10, 0, 10)  -- Изменена позиция на верхний левый угол, чтобы не перекрываться
 SettingsFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 SettingsFrame.BorderSizePixel = 0
 SettingsFrame.Parent = SettingsGui
