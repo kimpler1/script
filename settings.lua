@@ -10,11 +10,21 @@ local UserInputService = game:GetService("UserInputService")
 -- Например:
 local textLabels = {}  -- Если нужно, соберите их здесь, найдя в PlayerGui.DeadRailsGUI
 
-for _, gui in ipairs(LocalPlayer.PlayerGui:WaitForChild("DeadRailsGUI"):GetDescendants()) do
+local DeadRailsGUI = LocalPlayer.PlayerGui:WaitForChild("DeadRailsGUI", 10)
+if not DeadRailsGUI then
+    warn("Основной GUI не найден. Инжектите main.lua сначала.")
+    return
+end
+
+for _, gui in ipairs(DeadRailsGUI:GetDescendants()) do
     if gui:IsA("TextLabel") or gui:IsA("TextButton") then  -- Собираем все текстовые элементы
         table.insert(textLabels, gui)
     end
 end
+
+local MainFrame = DeadRailsGUI.MainFrame
+local ContentFrame = MainFrame.ContentFrame
+local TabContainer = MainFrame.TabContainer
 
 local SettingsGui = Instance.new("ScreenGui")
 SettingsGui.Name = "SettingsGUI"
@@ -23,7 +33,7 @@ SettingsGui.ResetOnSpawn = false
 SettingsGui.IgnoreGuiInset = true
 
 local SettingsFrame = Instance.new("Frame")
-SettingsFrame.Size = UDim2.new(0, 200, 0, 150)
+SettingsFrame.Size = UDim2.new(0, 200, 0, 250)
 SettingsFrame.Position = UDim2.new(0, 10, 0, 10)  -- Позиция в верхнем левом углу
 SettingsFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 SettingsFrame.BorderSizePixel = 0
@@ -117,6 +127,94 @@ DownButton.Parent = SettingsFrame
 DownButton.MouseButton1Click:Connect(function()
     textSize = math.max(textSize - 1, 5)  -- Мин 5
     updateTextSize()
+end)
+
+-- Настройка перемещения ContentFrame
+local ContentMoveLabel = Instance.new("TextLabel")
+ContentMoveLabel.Size = UDim2.new(1, 0, 0, 30)
+ContentMoveLabel.Position = UDim2.new(0, 10, 0, 70)
+ContentMoveLabel.BackgroundTransparency = 1
+ContentMoveLabel.Text = "Перемещение Content:"
+ContentMoveLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+ContentMoveLabel.TextSize = 12
+ContentMoveLabel.Parent = SettingsFrame
+
+local moveStep = 5
+
+local ContentLeftButton = Instance.new("TextButton")
+ContentLeftButton.Size = UDim2.new(0, 30, 0, 30)
+ContentLeftButton.Position = UDim2.new(0, 10, 0, 100)
+ContentLeftButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+ContentLeftButton.Text = "←"
+ContentLeftButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ContentLeftButton.Parent = SettingsFrame
+ContentLeftButton.MouseButton1Click:Connect(function()
+    ContentFrame.Position = UDim2.new(ContentFrame.Position.X.Scale, ContentFrame.Position.X.Offset - moveStep, ContentFrame.Position.Y.Scale, ContentFrame.Position.Y.Offset)
+end)
+
+local ContentUpButton = Instance.new("TextButton")
+ContentUpButton.Size = UDim2.new(0, 30, 0, 30)
+ContentUpButton.Position = UDim2.new(0, 50, 0, 100)
+ContentUpButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+ContentUpButton.Text = "↑"
+ContentUpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ContentUpButton.Parent = SettingsFrame
+ContentUpButton.MouseButton1Click:Connect(function()
+    ContentFrame.Position = UDim2.new(ContentFrame.Position.X.Scale, ContentFrame.Position.X.Offset, ContentFrame.Position.Y.Scale, ContentFrame.Position.Y.Offset - moveStep)
+end)
+
+local ContentDownButton = Instance.new("TextButton")
+ContentDownButton.Size = UDim2.new(0, 30, 0, 30)
+ContentDownButton.Position = UDim2.new(0, 90, 0, 100)
+ContentDownButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+ContentDownButton.Text = "↓"
+ContentDownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ContentDownButton.Parent = SettingsFrame
+ContentDownButton.MouseButton1Click:Connect(function()
+    ContentFrame.Position = UDim2.new(ContentFrame.Position.X.Scale, ContentFrame.Position.X.Offset, ContentFrame.Position.Y.Scale, ContentFrame.Position.Y.Offset + moveStep)
+end)
+
+local ContentRightButton = Instance.new("TextButton")
+ContentRightButton.Size = UDim2.new(0, 30, 0, 30)
+ContentRightButton.Position = UDim2.new(0, 130, 0, 100)
+ContentRightButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+ContentRightButton.Text = "→"
+ContentRightButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ContentRightButton.Parent = SettingsFrame
+ContentRightButton.MouseButton1Click:Connect(function()
+    ContentFrame.Position = UDim2.new(ContentFrame.Position.X.Scale, ContentFrame.Position.X.Offset + moveStep, ContentFrame.Position.Y.Scale, ContentFrame.Position.Y.Offset)
+end)
+
+-- Настройка перемещения TabContainer (только вверх-вниз)
+local TabMoveLabel = Instance.new("TextLabel")
+TabMoveLabel.Size = UDim2.new(1, 0, 0, 30)
+TabMoveLabel.Position = UDim2.new(0, 10, 0, 140)
+TabMoveLabel.BackgroundTransparency = 1
+TabMoveLabel.Text = "Перемещение Tab:"
+TabMoveLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TabMoveLabel.TextSize = 12
+TabMoveLabel.Parent = SettingsFrame
+
+local TabUpButton = Instance.new("TextButton")
+TabUpButton.Size = UDim2.new(0, 30, 0, 30)
+TabUpButton.Position = UDim2.new(0, 10, 0, 170)
+TabUpButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+TabUpButton.Text = "↑"
+TabUpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+TabUpButton.Parent = SettingsFrame
+TabUpButton.MouseButton1Click:Connect(function()
+    TabContainer.Position = UDim2.new(TabContainer.Position.X.Scale, TabContainer.Position.X.Offset, TabContainer.Position.Y.Scale, TabContainer.Position.Y.Offset - moveStep)
+end)
+
+local TabDownButton = Instance.new("TextButton")
+TabDownButton.Size = UDim2.new(0, 30, 0, 30)
+TabDownButton.Position = UDim2.new(0, 50, 0, 170)
+TabDownButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+TabDownButton.Text = "↓"
+TabDownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+TabDownButton.Parent = SettingsFrame
+TabDownButton.MouseButton1Click:Connect(function()
+    TabContainer.Position = UDim2.new(TabContainer.Position.X.Scale, TabContainer.Position.X.Offset, TabContainer.Position.Y.Scale, TabContainer.Position.Y.Offset + moveStep)
 end)
 
 -- Добавьте больше настроек по необходимости
