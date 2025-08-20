@@ -40,6 +40,10 @@ if not UIPaddingContent then
     return
 end
 
+-- Отключить клиппинг, чтобы контент мог выходить за пределы без укорачивания
+ContentFrame.ClipsDescendants = false
+TabContainer.ClipsDescendants = false
+
 -- Собрать tabButtons
 local tabButtons = {}
 for _, child in ipairs(TabContainer:GetChildren()) do
