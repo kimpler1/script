@@ -94,6 +94,11 @@ SettingsScrolling.CanvasSize = UDim2.new(0, 0, 0, 0)
 SettingsScrolling.ScrollBarThickness = 10
 SettingsScrolling.ScrollingDirection = Enum.ScrollingDirection.Y
 
+local SettingsListLayout = Instance.new("UIListLayout")
+SettingsListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+SettingsListLayout.Padding = UDim.new(0, 5)
+SettingsListLayout.Parent = SettingsScrolling
+
 -- Перетаскивание для SettingsFrame (работает на всём фрейме)
 local settingsDragging, settingsDragInput, settingsDragStart, settingsStartPos
 local function settingsUpdate(input)
@@ -138,30 +143,28 @@ SettingsCloseButton.MouseButton1Click:Connect(function()
 end)
 
 -- Настройка размера текста
-local textSize = 10  -- Начальный размер
+local TextSizeContainer = Instance.new("Frame")
+TextSizeContainer.Size = UDim2.new(1, 0, 0, 60)
+TextSizeContainer.BackgroundTransparency = 1
+TextSizeContainer.LayoutOrder = 1
+TextSizeContainer.Parent = SettingsScrolling
+
 local TextSizeLabel = Instance.new("TextLabel")
 TextSizeLabel.Size = UDim2.new(1, -50, 0, 30)
-TextSizeLabel.Position = UDim2.new(0, 10, 0, 10)
+TextSizeLabel.Position = UDim2.new(0, 10, 0, 0)
 TextSizeLabel.BackgroundTransparency = 1
 TextSizeLabel.Text = "Размер текста: " .. textSize
 TextSizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TextSizeLabel.TextSize = 12
-TextSizeLabel.Parent = SettingsScrolling
-
-local function updateTextSize()
-    for _, label in ipairs(textLabels) do
-        label.TextSize = textSize
-    end
-    TextSizeLabel.Text = "Размер текста: " .. textSize
-end
+TextSizeLabel.Parent = TextSizeContainer
 
 local UpButton = Instance.new("TextButton")
 UpButton.Size = UDim2.new(0, 20, 0, 20)
-UpButton.Position = UDim2.new(1, -40, 0, 15)
+UpButton.Position = UDim2.new(1, -40, 0, 5)
 UpButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 UpButton.Text = "↑"
 UpButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-UpButton.Parent = SettingsScrolling
+UpButton.Parent = TextSizeContainer
 UpButton.MouseButton1Click:Connect(function()
     textSize = math.min(textSize + 1, 30)  -- Макс 30
     updateTextSize()
@@ -169,35 +172,39 @@ end)
 
 local DownButton = Instance.new("TextButton")
 DownButton.Size = UDim2.new(0, 20, 0, 20)
-DownButton.Position = UDim2.new(1, -40, 0, 40)
+DownButton.Position = UDim2.new(1, -40, 0, 30)
 DownButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 DownButton.Text = "↓"
 DownButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-DownButton.Parent = SettingsScrolling
+DownButton.Parent = TextSizeContainer
 DownButton.MouseButton1Click:Connect(function()
     textSize = math.max(textSize - 1, 5)  -- Мин 5
     updateTextSize()
 end)
 
 -- Настройка перемещения Content (функций внутри ContentFrame с помощью UIPadding)
+local ContentMoveContainer = Instance.new("Frame")
+ContentMoveContainer.Size = UDim2.new(1, 0, 0, 60)
+ContentMoveContainer.BackgroundTransparency = 1
+ContentMoveContainer.LayoutOrder = 2
+ContentMoveContainer.Parent = SettingsScrolling
+
 local ContentMoveLabel = Instance.new("TextLabel")
 ContentMoveLabel.Size = UDim2.new(1, 0, 0, 30)
-ContentMoveLabel.Position = UDim2.new(0, 10, 0, 70)
+ContentMoveLabel.Position = UDim2.new(0, 10, 0, 0)
 ContentMoveLabel.BackgroundTransparency = 1
 ContentMoveLabel.Text = "Перемещение Content:"
 ContentMoveLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 ContentMoveLabel.TextSize = 12
-ContentMoveLabel.Parent = SettingsScrolling
-
-local moveStep = 5
+ContentMoveLabel.Parent = ContentMoveContainer
 
 local ContentLeftButton = Instance.new("TextButton")
 ContentLeftButton.Size = UDim2.new(0, 30, 0, 30)
-ContentLeftButton.Position = UDim2.new(0, 10, 0, 100)
+ContentLeftButton.Position = UDim2.new(0, 10, 0, 30)
 ContentLeftButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 ContentLeftButton.Text = "←"
 ContentLeftButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentLeftButton.Parent = SettingsScrolling
+ContentLeftButton.Parent = ContentMoveContainer
 ContentLeftButton.MouseButton1Click:Connect(function()
     local currentLeft = UIPaddingContent.PaddingLeft.Offset
     local currentRight = UIPaddingContent.PaddingRight.Offset
@@ -207,11 +214,11 @@ end)
 
 local ContentUpButton = Instance.new("TextButton")
 ContentUpButton.Size = UDim2.new(0, 30, 0, 30)
-ContentUpButton.Position = UDim2.new(0, 50, 0, 100)
+ContentUpButton.Position = UDim2.new(0, 50, 0, 30)
 ContentUpButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 ContentUpButton.Text = "↑"
 ContentUpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentUpButton.Parent = SettingsScrolling
+ContentUpButton.Parent = ContentMoveContainer
 ContentUpButton.MouseButton1Click:Connect(function()
     local currentTop = UIPaddingContent.PaddingTop.Offset
     UIPaddingContent.PaddingTop = UDim.new(0, math.max(currentTop - moveStep, -50))
@@ -219,11 +226,11 @@ end)
 
 local ContentDownButton = Instance.new("TextButton")
 ContentDownButton.Size = UDim2.new(0, 30, 0, 30)
-ContentDownButton.Position = UDim2.new(0, 90, 0, 100)
+ContentDownButton.Position = UDim2.new(0, 90, 0, 30)
 ContentDownButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 ContentDownButton.Text = "↓"
 ContentDownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentDownButton.Parent = SettingsScrolling
+ContentDownButton.Parent = ContentMoveContainer
 ContentDownButton.MouseButton1Click:Connect(function()
     local currentTop = UIPaddingContent.PaddingTop.Offset
     UIPaddingContent.PaddingTop = UDim.new(0, currentTop + moveStep)
@@ -231,11 +238,11 @@ end)
 
 local ContentRightButton = Instance.new("TextButton")
 ContentRightButton.Size = UDim2.new(0, 30, 0, 30)
-ContentRightButton.Position = UDim2.new(0, 130, 0, 100)
+ContentRightButton.Position = UDim2.new(0, 130, 0, 30)
 ContentRightButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 ContentRightButton.Text = "→"
 ContentRightButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentRightButton.Parent = SettingsScrolling
+ContentRightButton.Parent = ContentMoveContainer
 ContentRightButton.MouseButton1Click:Connect(function()
     local currentLeft = UIPaddingContent.PaddingLeft.Offset
     local currentRight = UIPaddingContent.PaddingRight.Offset
@@ -244,22 +251,28 @@ ContentRightButton.MouseButton1Click:Connect(function()
 end)
 
 -- Настройка перемещения Tab (вкладок внутри TabContainer)
+local TabMoveContainer = Instance.new("Frame")
+TabMoveContainer.Size = UDim2.new(1, 0, 0, 60)
+TabMoveContainer.BackgroundTransparency = 1
+TabMoveContainer.LayoutOrder = 3
+TabMoveContainer.Parent = SettingsScrolling
+
 local TabMoveLabel = Instance.new("TextLabel")
 TabMoveLabel.Size = UDim2.new(1, 0, 0, 30)
-TabMoveLabel.Position = UDim2.new(0, 10, 0, 140)
+TabMoveLabel.Position = UDim2.new(0, 10, 0, 0)
 TabMoveLabel.BackgroundTransparency = 1
 TabMoveLabel.Text = "Перемещение Tab:"
 TabMoveLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TabMoveLabel.TextSize = 12
-TabMoveLabel.Parent = SettingsScrolling
+TabMoveLabel.Parent = TabMoveContainer
 
 local TabUpButton = Instance.new("TextButton")
 TabUpButton.Size = UDim2.new(0, 30, 0, 30)
-TabUpButton.Position = UDim2.new(0, 10, 0, 170)
+TabUpButton.Position = UDim2.new(0, 10, 0, 30)
 TabUpButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 TabUpButton.Text = "↑"
 TabUpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-TabUpButton.Parent = SettingsScrolling
+TabUpButton.Parent = TabMoveContainer
 TabUpButton.MouseButton1Click:Connect(function()
     for _, button in ipairs(tabButtons) do
         button.Position = UDim2.new(button.Position.X.Scale, button.Position.X.Offset, button.Position.Y.Scale, button.Position.Y.Offset - moveStep)
@@ -268,11 +281,11 @@ end)
 
 local TabDownButton = Instance.new("TextButton")
 TabDownButton.Size = UDim2.new(0, 30, 0, 30)
-TabDownButton.Position = UDim2.new(0, 50, 0, 170)
+TabDownButton.Position = UDim2.new(0, 50, 0, 30)
 TabDownButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 TabDownButton.Text = "↓"
 TabDownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-TabDownButton.Parent = SettingsScrolling
+TabDownButton.Parent = TabMoveContainer
 TabDownButton.MouseButton1Click:Connect(function()
     for _, button in ipairs(tabButtons) do
         button.Position = UDim2.new(button.Position.X.Scale, button.Position.X.Offset, button.Position.Y.Scale, button.Position.Y.Offset + moveStep)
@@ -280,34 +293,37 @@ TabDownButton.MouseButton1Click:Connect(function()
 end)
 
 -- Настройка расширения GUI
+local ResizeContainer = Instance.new("Frame")
+ResizeContainer.Size = UDim2.new(1, 0, 0, 150)
+ResizeContainer.BackgroundTransparency = 1
+ResizeContainer.LayoutOrder = 4
+ResizeContainer.Parent = SettingsScrolling
+
 local ResizeLabel = Instance.new("TextLabel")
 ResizeLabel.Size = UDim2.new(1, 0, 0, 30)
-ResizeLabel.Position = UDim2.new(0, 10, 0, 210)
+ResizeLabel.Position = UDim2.new(0, 10, 0, 0)
 ResizeLabel.BackgroundTransparency = 1
 ResizeLabel.Text = "Расширение GUI:"
 ResizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 ResizeLabel.TextSize = 12
-ResizeLabel.Parent = SettingsScrolling
+ResizeLabel.Parent = ResizeContainer
 
-local resizeStep = 5
-
--- Расширение TabContainer (фиолетовая область)
 local TabResizeLabel = Instance.new("TextLabel")
 TabResizeLabel.Size = UDim2.new(1, 0, 0, 20)
-TabResizeLabel.Position = UDim2.new(0, 10, 0, 240)
+TabResizeLabel.Position = UDim2.new(0, 10, 0, 30)
 TabResizeLabel.BackgroundTransparency = 1
 TabResizeLabel.Text = "Tab (ширина):"
 TabResizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TabResizeLabel.TextSize = 12
-TabResizeLabel.Parent = SettingsScrolling
+TabResizeLabel.Parent = ResizeContainer
 
 local TabWidthPlus = Instance.new("TextButton")
 TabWidthPlus.Size = UDim2.new(0, 30, 0, 30)
-TabWidthPlus.Position = UDim2.new(0, 10, 0, 260)
+TabWidthPlus.Position = UDim2.new(0, 10, 0, 50)
 TabWidthPlus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 TabWidthPlus.Text = "+"
 TabWidthPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
-TabWidthPlus.Parent = SettingsScrolling
+TabWidthPlus.Parent = ResizeContainer
 TabWidthPlus.MouseButton1Click:Connect(function()
     local newTabWidth = TabContainer.Size.X.Offset + resizeStep
     TabContainer.Size = UDim2.new(0, newTabWidth, 1, 0)
@@ -317,11 +333,11 @@ end)
 
 local TabWidthMinus = Instance.new("TextButton")
 TabWidthMinus.Size = UDim2.new(0, 30, 0, 30)
-TabWidthMinus.Position = UDim2.new(0, 50, 0, 260)
+TabWidthMinus.Position = UDim2.new(0, 50, 0, 50)
 TabWidthMinus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 TabWidthMinus.Text = "-"
 TabWidthMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
-TabWidthMinus.Parent = SettingsScrolling
+TabWidthMinus.Parent = ResizeContainer
 TabWidthMinus.MouseButton1Click:Connect(function()
     local newTabWidth = math.max(TabContainer.Size.X.Offset - resizeStep, 50)  -- Мин ширина 50
     TabContainer.Size = UDim2.new(0, newTabWidth, 1, 0)
@@ -332,20 +348,20 @@ end)
 -- Расширение ContentFrame (серая область)
 local ContentResizeLabel = Instance.new("TextLabel")
 ContentResizeLabel.Size = UDim2.new(1, 0, 0, 20)
-ContentResizeLabel.Position = UDim2.new(0, 10, 0, 290)
+ContentResizeLabel.Position = UDim2.new(0, 10, 0, 80)
 ContentResizeLabel.BackgroundTransparency = 1
 ContentResizeLabel.Text = "Content (ширина):"
 ContentResizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 ContentResizeLabel.TextSize = 12
-ContentResizeLabel.Parent = SettingsScrolling
+ContentResizeLabel.Parent = ResizeContainer
 
 local ContentWidthPlus = Instance.new("TextButton")
 ContentWidthPlus.Size = UDim2.new(0, 30, 0, 30)
-ContentWidthPlus.Position = UDim2.new(0, 10, 0, 310)
+ContentWidthPlus.Position = UDim2.new(0, 10, 0, 100)
 ContentWidthPlus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 ContentWidthPlus.Text = "+"
 ContentWidthPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentWidthPlus.Parent = SettingsScrolling
+ContentWidthPlus.Parent = ResizeContainer
 ContentWidthPlus.MouseButton1Click:Connect(function()
     local newContentWidth = ContentFrame.Size.X.Offset + resizeStep
     ContentFrame.Size = UDim2.new(0, newContentWidth, 1, 0)
@@ -354,11 +370,11 @@ end)
 
 local ContentWidthMinus = Instance.new("TextButton")
 ContentWidthMinus.Size = UDim2.new(0, 30, 0, 30)
-ContentWidthMinus.Position = UDim2.new(0, 50, 0, 310)
+ContentWidthMinus.Position = UDim2.new(0, 50, 0, 100)
 ContentWidthMinus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 ContentWidthMinus.Text = "-"
 ContentWidthMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentWidthMinus.Parent = SettingsScrolling
+ContentWidthMinus.Parent = ResizeContainer
 ContentWidthMinus.MouseButton1Click:Connect(function()
     local newContentWidth = math.max(ContentFrame.Size.X.Offset - resizeStep, 100)  -- Мин ширина 100
     ContentFrame.Size = UDim2.new(0, newContentWidth, 1, 0)
@@ -368,20 +384,20 @@ end)
 -- Расширение высоты MainFrame (общей высоты)
 local HeightResizeLabel = Instance.new("TextLabel")
 HeightResizeLabel.Size = UDim2.new(1, 0, 0, 20)
-HeightResizeLabel.Position = UDim2.new(0, 10, 0, 340)
+HeightResizeLabel.Position = UDim2.new(0, 10, 0, 130)
 HeightResizeLabel.BackgroundTransparency = 1
 HeightResizeLabel.Text = "Высота GUI:"
 HeightResizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 HeightResizeLabel.TextSize = 12
-HeightResizeLabel.Parent = SettingsScrolling
+HeightResizeLabel.Parent = ResizeContainer
 
 local HeightPlus = Instance.new("TextButton")
 HeightPlus.Size = UDim2.new(0, 30, 0, 30)
-HeightPlus.Position = UDim2.new(0, 10, 0, 360)
+HeightPlus.Position = UDim2.new(0, 10, 0, 150)
 HeightPlus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 HeightPlus.Text = "+"
 HeightPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
-HeightPlus.Parent = SettingsScrolling
+HeightPlus.Parent = ResizeContainer
 HeightPlus.MouseButton1Click:Connect(function()
     local newHeight = MainFrame.Size.Y.Offset + resizeStep
     MainFrame.Size = UDim2.new(0, MainFrame.Size.X.Offset, 0, newHeight)
@@ -389,33 +405,39 @@ end)
 
 local HeightMinus = Instance.new("TextButton")
 HeightMinus.Size = UDim2.new(0, 30, 0, 30)
-HeightMinus.Position = UDim2.new(0, 50, 0, 360)
+HeightMinus.Position = UDim2.new(0, 50, 0, 150)
 HeightMinus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 HeightMinus.Text = "-"
 HeightMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
-HeightMinus.Parent = SettingsScrolling
+HeightMinus.Parent = ResizeContainer
 HeightMinus.MouseButton1Click:Connect(function()
     local newHeight = math.max(MainFrame.Size.Y.Offset - resizeStep, 150)  -- Мин высота 150
     MainFrame.Size = UDim2.new(0, MainFrame.Size.X.Offset, 0, newHeight)
 end)
 
 -- Настройка отступа между функциями
+local PaddingContainer = Instance.new("Frame")
+PaddingContainer.Size = UDim2.new(1, 0, 0, 60)
+PaddingContainer.BackgroundTransparency = 1
+PaddingContainer.LayoutOrder = 5
+PaddingContainer.Parent = SettingsScrolling
+
 local PaddingLabel = Instance.new("TextLabel")
 PaddingLabel.Size = UDim2.new(1, 0, 0, 20)
-PaddingLabel.Position = UDim2.new(0, 10, 0, 400)
+PaddingLabel.Position = UDim2.new(0, 10, 0, 0)
 PaddingLabel.BackgroundTransparency = 1
 PaddingLabel.Text = "Отступ функций: " .. UIListLayout.Padding.Offset
 PaddingLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 PaddingLabel.TextSize = 12
-PaddingLabel.Parent = SettingsScrolling
+PaddingLabel.Parent = PaddingContainer
 
 local PaddingPlus = Instance.new("TextButton")
 PaddingPlus.Size = UDim2.new(0, 30, 0, 30)
-PaddingPlus.Position = UDim2.new(0, 10, 0, 420)
+PaddingPlus.Position = UDim2.new(0, 10, 0, 20)
 PaddingPlus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 PaddingPlus.Text = "+"
 PaddingPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
-PaddingPlus.Parent = SettingsScrolling
+PaddingPlus.Parent = PaddingContainer
 PaddingPlus.MouseButton1Click:Connect(function()
     local newPadding = UIListLayout.Padding.Offset + 1
     UIListLayout.Padding = UDim.new(0, newPadding)
@@ -432,11 +454,11 @@ end)
 
 local PaddingMinus = Instance.new("TextButton")
 PaddingMinus.Size = UDim2.new(0, 30, 0, 30)
-PaddingMinus.Position = UDim2.new(0, 50, 0, 420)
+PaddingMinus.Position = UDim2.new(0, 50, 0, 20)
 PaddingMinus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 PaddingMinus.Text = "-"
 PaddingMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
-PaddingMinus.Parent = SettingsScrolling
+PaddingMinus.Parent = PaddingContainer
 PaddingMinus.MouseButton1Click:Connect(function()
     local newPadding = math.max(UIListLayout.Padding.Offset - 1, 0)  -- Мин 0
     UIListLayout.Padding = UDim.new(0, newPadding)
@@ -452,14 +474,20 @@ PaddingMinus.MouseButton1Click:Connect(function()
 end)
 
 -- Кнопка Save Settings
+local SaveContainer = Instance.new("Frame")
+SaveContainer.Size = UDim2.new(1, 0, 0, 40)
+SaveContainer.BackgroundTransparency = 1
+SaveContainer.LayoutOrder = 6
+SaveContainer.Parent = SettingsScrolling
+
 local SaveButton = Instance.new("TextButton")
 SaveButton.Size = UDim2.new(1, -20, 0, 30)
-SaveButton.Position = UDim2.new(0, 10, 0, 460)
+SaveButton.Position = UDim2.new(0, 10, 0, 0)
 SaveButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
 SaveButton.Text = "Save Settings"
 SaveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 SaveButton.TextSize = 12
-SaveButton.Parent = SettingsScrolling
+SaveButton.Parent = SaveContainer
 SaveButton.MouseButton1Click:Connect(function()
     local code = "-- Вставьте это в main.lua для фиксации настроек:\n"
     code = code .. "MainFrame.Size = UDim2.new(0, " .. MainFrame.Size.X.Offset .. ", 0, " .. MainFrame.Size.Y.Offset .. ")\n"
@@ -479,14 +507,11 @@ SaveButton.MouseButton1Click:Connect(function()
     -- Установка в TextBox и показ
     CodeTextBox.Text = code
     CodeTextBox.Visible = true
-    -- Автоматически обновить CanvasSize для прокрутки
-    SettingsScrolling.CanvasSize = UDim2.new(0, 0, 0, SettingsScrolling.AbsoluteContentSize.Y + CodeTextBox.Size.Y.Offset)
 end)
 
 -- TextBox для кода под кнопкой (изначально скрыт)
 local CodeTextBox = Instance.new("TextBox")
 CodeTextBox.Size = UDim2.new(1, -20, 0, 100)
-CodeTextBox.Position = UDim2.new(0, 10, 0, 500)
 CodeTextBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 CodeTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 CodeTextBox.TextSize = 12
@@ -495,6 +520,7 @@ CodeTextBox.MultiLine = true
 CodeTextBox.ClearTextOnFocus = false
 CodeTextBox.Text = "Нажмите 'Save Settings' для генерации кода"
 CodeTextBox.Visible = false
+CodeTextBox.LayoutOrder = 7
 CodeTextBox.Parent = SettingsScrolling
 
 -- Добавьте больше настроек по необходимости
