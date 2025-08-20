@@ -185,8 +185,7 @@ ContentMoveLabel.Size = UDim2.new(1, 0, 0, 30)
 ContentMoveLabel.Position = UDim2.new(0, 10, 0, 70)
 ContentMoveLabel.BackgroundTransparency = 1
 ContentMoveLabel.Text = "Перемещение Content:"
-ContentMoveLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentMoveLabel.TextSize = 12
+TextSizeLabel.TextSize = 12
 ContentMoveLabel.Parent = SettingsScrolling
 
 local moveStep = 5
@@ -476,11 +475,12 @@ SaveButton.MouseButton1Click:Connect(function()
     end
     -- Вывод в консоль (для отладки)
     print(code)
-    -- Установка в TextBox
+    -- Установка в TextBox и показ
     CodeTextBox.Text = code
+    CodeTextBox.Visible = true
 end)
 
--- TextBox для кода под кнопкой
+-- TextBox для кода под кнопкой (изначально скрыт)
 local CodeTextBox = Instance.new("TextBox")
 CodeTextBox.Size = UDim2.new(1, -20, 0, 100)
 CodeTextBox.Position = UDim2.new(0, 10, 0, 500)
@@ -491,6 +491,7 @@ CodeTextBox.TextWrapped = true
 CodeTextBox.MultiLine = true
 CodeTextBox.ClearTextOnFocus = false
 CodeTextBox.Text = "Нажмите 'Save Settings' для генерации кода"
+CodeTextBox.Visible = false
 CodeTextBox.Parent = SettingsScrolling
 
 -- Добавьте больше настроек по необходимости
