@@ -40,6 +40,10 @@ if not UIPaddingContent then
     return
 end
 
+-- Отключить клиппинг, чтобы контент мог выходить за пределы без укорачивания
+ContentFrame.ClipsDescendants = false
+TabContainer.ClipsDescendants = false
+
 -- Собрать tabButtons
 local tabButtons = {}
 for _, child in ipairs(TabContainer:GetChildren()) do
@@ -61,7 +65,7 @@ SettingsGui.ResetOnSpawn = false
 SettingsGui.IgnoreGuiInset = true
 
 local SettingsFrame = Instance.new("Frame")
-SettingsFrame.Size = UDim2.new(0, 200, 0, 250)
+SettingsFrame.Size = UDim2.new(0, 200, 0, 350)
 SettingsFrame.Position = UDim2.new(0, 10, 0, 10)  -- Позиция в верхнем левом углу
 SettingsFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 SettingsFrame.BorderSizePixel = 0
@@ -255,6 +259,126 @@ TabDownButton.MouseButton1Click:Connect(function()
     for _, button in ipairs(tabButtons) do
         button.Position = UDim2.new(button.Position.X.Scale, button.Position.X.Offset, button.Position.Y.Scale, button.Position.Y.Offset + moveStep)
     end
+end)
+
+-- Настройка расширения GUI
+local ResizeLabel = Instance.new("TextLabel")
+ResizeLabel.Size = UDim2.new(1, 0, 0, 30)
+ResizeLabel.Position = UDim2.new(0, 10, 0, 210)
+ResizeLabel.BackgroundTransparency = 1
+ResizeLabel.Text = "Расширение GUI:"
+ResizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+ResizeLabel.TextSize = 12
+ResizeLabel.Parent = SettingsFrame
+
+local resizeStep = 5
+
+-- Расширение TabContainer (фиолетовая область)
+local TabResizeLabel = Instance.new("TextLabel")
+TabResizeLabel.Size = UDim2.new(1, 0, 0, 20)
+TabResizeLabel.Position = UDim2.new(0, 10, 0, 240)
+TabResizeLabel.BackgroundTransparency = 1
+TabResizeLabel.Text = "Tab (ширина):"
+TabResizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TabResizeLabel.TextSize = 12
+TabResizeLabel.Parent = SettingsFrame
+
+local TabWidthPlus = Instance.new("TextButton")
+TabWidthPlus.Size = UDim2.new(0, 30, 0, 30)
+TabWidthPlus.Position = UDim2.new(0, 10, 0, 260)
+TabWidthPlus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+TabWidthPlus.Text = "+"
+TabWidthPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
+TabWidthPlus.Parent = SettingsFrame
+TabWidthPlus.MouseButton1Click:Connect(function()
+    local newTabWidth = TabContainer.Size.X.Offset + resizeStep
+    TabContainer.Size = UDim2.new(0, newTabWidth, 1, 0)
+    ContentFrame.Position = UDim2.new(0, newTabWidth, 0, 0)
+    MainFrame.Size = UDim2.new(0, newTabWidth + ContentFrame.Size.X.Offset, 0, MainFrame.Size.Y.Offset)
+end)
+
+local TabWidthMinus = Instance.new("TextButton")
+TabWidthMinus.Size = UDim2.new(0, 30, 0, 30)
+TabWidthMinus.Position = UDim2.new(0, 50, 0, 260)
+TabWidthMinus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+TabWidthMinus.Text = "-"
+TabWidthMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
+TabWidthMinus.Parent = SettingsFrame
+TabWidthMinus.MouseButton1Click:Connect(function()
+    local newTabWidth = math.max(TabContainer.Size.X.Offset - resizeStep, 50)  -- Мин ширина 50
+    TabContainer.Size = UDim2.new(0, newTabWidth, 1, 0)
+    ContentFrame.Position = UDim2.new(0, newTabWidth, 0, 0)
+    MainFrame.Size = UDim2.new(0, newTabWidth + ContentFrame.Size.X.Offset, 0, MainFrame.Size.Y.Offset)
+end)
+
+-- Расширение ContentFrame (серая область)
+local ContentResizeLabel = Instance.new("TextLabel")
+ContentResizeLabel.Size = UDim2.new(1, 0, 0, 20)
+ContentResizeLabel.Position = UDim2.new(0, 10, 0, 290)
+ContentResizeLabel.BackgroundTransparency = 1
+ContentResizeLabel.Text = "Content (ширина):"
+ContentResizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+ContentResizeLabel.TextSize = 12
+ContentResizeLabel.Parent = SettingsFrame
+
+local ContentWidthPlus = Instance.new("TextButton")
+ContentWidthPlus.Size = UDim2.new(0, 30, 0, 30)
+ContentWidthPlus.Position = UDim2.new(0, 10, 0, 310)
+ContentWidthPlus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+ContentWidthPlus.Text = "+"
+ContentWidthPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
+ContentWidthPlus.Parent = SettingsFrame
+ContentWidthPlus.MouseButton1Click:Connect(function()
+    local newContentWidth = ContentFrame.Size.X.Offset + resizeStep
+    ContentFrame.Size = UDim2.new(0, newContentWidth, 1, 0)
+    MainFrame.Size = UDim2.new(0, TabContainer.Size.X.Offset + newContentWidth, 0, MainFrame.Size.Y.Offset)
+end)
+
+local ContentWidthMinus = Instance.new("TextButton")
+ContentWidthMinus.Size = UDim2.new(0, 30, 0, 30)
+ContentWidthMinus.Position = UDim2.new(0, 50, 0, 310)
+ContentWidthMinus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+ContentWidthMinus.Text = "-"
+ContentWidthMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
+ContentWidthMinus.Parent = SettingsFrame
+ContentWidthMinus.MouseButton1Click:Connect(function()
+    local newContentWidth = math.max(ContentFrame.Size.X.Offset - resizeStep, 100)  -- Мин ширина 100
+    ContentFrame.Size = UDim2.new(0, newContentWidth, 1, 0)
+    MainFrame.Size = UDim2.new(0, TabContainer.Size.X.Offset + newContentWidth, 0, MainFrame.Size.Y.Offset)
+end)
+
+-- Расширение высоты MainFrame (общей высоты)
+local HeightResizeLabel = Instance.new("TextLabel")
+HeightResizeLabel.Size = UDim2.new(1, 0, 0, 20)
+HeightResizeLabel.Position = UDim2.new(0, 10, 0, 340)
+HeightResizeLabel.BackgroundTransparency = 1
+HeightResizeLabel.Text = "Высота GUI:"
+HeightResizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+HeightResizeLabel.TextSize = 12
+HeightResizeLabel.Parent = SettingsFrame
+
+local HeightPlus = Instance.new("TextButton")
+HeightPlus.Size = UDim2.new(0, 30, 0, 30)
+HeightPlus.Position = UDim2.new(0, 10, 0, 360)
+HeightPlus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+HeightPlus.Text = "+"
+HeightPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
+HeightPlus.Parent = SettingsFrame
+HeightPlus.MouseButton1Click:Connect(function()
+    local newHeight = MainFrame.Size.Y.Offset + resizeStep
+    MainFrame.Size = UDim2.new(0, MainFrame.Size.X.Offset, 0, newHeight)
+end)
+
+local HeightMinus = Instance.new("TextButton")
+HeightMinus.Size = UDim2.new(0, 30, 0, 30)
+HeightMinus.Position = UDim2.new(0, 50, 0, 360)
+HeightMinus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+HeightMinus.Text = "-"
+HeightMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
+HeightMinus.Parent = SettingsFrame
+HeightMinus.MouseButton1Click:Connect(function()
+    local newHeight = math.max(MainFrame.Size.Y.Offset - resizeStep, 150)  -- Мин высота 150
+    MainFrame.Size = UDim2.new(0, MainFrame.Size.X.Offset, 0, newHeight)
 end)
 
 -- Добавьте больше настроек по необходимости
