@@ -40,6 +40,12 @@ if not UIPaddingContent then
     return
 end
 
+local UIListLayout = ContentFrame:FindFirstChildOfClass("UIListLayout")
+if not UIListLayout then
+    warn("UIListLayout не найден в ContentFrame.")
+    return
+end
+
 -- Отключить клиппинг, чтобы контент мог выходить за пределы без укорачивания
 ContentFrame.ClipsDescendants = false
 TabContainer.ClipsDescendants = false
@@ -391,6 +397,42 @@ HeightMinus.Parent = SettingsScrolling
 HeightMinus.MouseButton1Click:Connect(function()
     local newHeight = math.max(MainFrame.Size.Y.Offset - resizeStep, 150)  -- Мин высота 150
     MainFrame.Size = UDim2.new(0, MainFrame.Size.X.Offset, 0, newHeight)
+end)
+
+-- Настройка отступа между функциями
+local PaddingLabel = Instance.new("TextLabel")
+PaddingLabel.Size = UDim2.new(1, 0, 0, 20)
+PaddingLabel.Position = UDim2.new(0, 10, 0, 400)
+PaddingLabel.BackgroundTransparency = 1
+PaddingLabel.Text = "Отступ функций: " .. UIListLayout.Padding.Offset
+PaddingLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+PaddingLabel.TextSize = 12
+PaddingLabel.Parent = SettingsScrolling
+
+local PaddingPlus = Instance.new("TextButton")
+PaddingPlus.Size = UDim2.new(0, 30, 0, 30)
+PaddingPlus.Position = UDim2.new(0, 10, 0, 420)
+PaddingPlus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+PaddingPlus.Text = "+"
+PaddingPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
+PaddingPlus.Parent = SettingsScrolling
+PaddingPlus.MouseButton1Click:Connect(function()
+    local newPadding = UIListLayout.Padding.Offset + 1
+    UIListLayout.Padding = UDim.new(0, newPadding)
+    PaddingLabel.Text = "Отступ функций: " .. newPadding
+end)
+
+local PaddingMinus = Instance.new("TextButton")
+PaddingMinus.Size = UDim2.new(0, 30, 0, 30)
+PaddingMinus.Position = UDim2.new(0, 50, 0, 420)
+PaddingMinus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+PaddingMinus.Text = "-"
+PaddingMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
+PaddingMinus.Parent = SettingsScrolling
+PaddingMinus.MouseButton1Click:Connect(function()
+    local newPadding = math.max(UIListLayout.Padding.Offset - 1, 0)  -- Мин 0
+    UIListLayout.Padding = UDim.new(0, newPadding)
+    PaddingLabel.Text = "Отступ функций: " .. newPadding
 end)
 
 -- Добавьте больше настроек по необходимости
