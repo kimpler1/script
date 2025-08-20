@@ -16,15 +16,29 @@ if not DeadRailsGUI then
     return
 end
 
+local MainFrame = DeadRailsGUI:FindFirstChild("MainFrame")
+if not MainFrame then
+    warn("MainFrame не найден в DeadRailsGUI.")
+    return
+end
+
+local ContentFrame = MainFrame:FindFirstChild("ContentFrame")
+if not ContentFrame then
+    warn("ContentFrame не найден. Убедитесь, что в main.lua добавлено ContentFrame.Name = 'ContentFrame'")
+    return
+end
+
+local TabContainer = MainFrame:FindFirstChild("TabContainer")
+if not TabContainer then
+    warn("TabContainer не найден. Убедитесь, что в main.lua добавлено TabContainer.Name = 'TabContainer'")
+    return
+end
+
 for _, gui in ipairs(DeadRailsGUI:GetDescendants()) do
     if gui:IsA("TextLabel") or gui:IsA("TextButton") then  -- Собираем все текстовые элементы
         table.insert(textLabels, gui)
     end
 end
-
-local MainFrame = DeadRailsGUI.MainFrame
-local ContentFrame = MainFrame.ContentFrame
-local TabContainer = MainFrame.TabContainer
 
 local SettingsGui = Instance.new("ScreenGui")
 SettingsGui.Name = "SettingsGUI"
