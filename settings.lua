@@ -34,6 +34,20 @@ if not TabContainer then
     return
 end
 
+local UIPaddingContent = ContentFrame:FindFirstChildOfClass("UIPadding")
+if not UIPaddingContent then
+    warn("UIPadding не найден в ContentFrame.")
+    return
+end
+
+-- Собрать tabButtons
+local tabButtons = {}
+for _, child in ipairs(TabContainer:GetChildren()) do
+    if child:IsA("TextButton") then
+        table.insert(tabButtons, child)
+    end
+end
+
 for _, gui in ipairs(DeadRailsGUI:GetDescendants()) do
     if gui:IsA("TextLabel") or gui:IsA("TextButton") then  -- Собираем все текстовые элементы
         table.insert(textLabels, gui)
@@ -143,7 +157,7 @@ DownButton.MouseButton1Click:Connect(function()
     updateTextSize()
 end)
 
--- Настройка перемещения ContentFrame
+-- Настройка перемещения Content (функций внутри ContentFrame с помощью UIPadding)
 local ContentMoveLabel = Instance.new("TextLabel")
 ContentMoveLabel.Size = UDim2.new(1, 0, 0, 30)
 ContentMoveLabel.Position = UDim2.new(0, 10, 0, 70)
@@ -163,7 +177,9 @@ ContentLeftButton.Text = "←"
 ContentLeftButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ContentLeftButton.Parent = SettingsFrame
 ContentLeftButton.MouseButton1Click:Connect(function()
-    ContentFrame.Position = UDim2.new(ContentFrame.Position.X.Scale, ContentFrame.Position.X.Offset - moveStep, ContentFrame.Position.Y.Scale, ContentFrame.Position.Y.Offset)
+    -- Сдвиг влево: уменьшить PaddingLeft
+    local currentLeft = UIPaddingContent.PaddingLeft.Offset
+    UIPaddingContent.PaddingLeft = UDim.new(0, math.max(currentLeft - moveStep, -50))  -- Мин -50 для безопасности
 end)
 
 local ContentUpButton = Instance.new("TextButton")
@@ -174,7 +190,9 @@ ContentUpButton.Text = "↑"
 ContentUpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ContentUpButton.Parent = SettingsFrame
 ContentUpButton.MouseButton1Click:Connect(function()
-    ContentFrame.Position = UDim2.new(ContentFrame.Position.X.Scale, ContentFrame.Position.X.Offset, ContentFrame.Position.Y.Scale, ContentFrame.Position.Y.Offset - moveStep)
+    -- Сдвиг вверх: уменьшить PaddingTop
+    local currentTop = UIPaddingContent.PaddingTop.Offset
+    UIPaddingContent.PaddingTop = UDim.new(0, math.max(currentTop - moveStep, -50))
 end)
 
 local ContentDownButton = Instance.new("TextButton")
@@ -185,7 +203,9 @@ ContentDownButton.Text = "↓"
 ContentDownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ContentDownButton.Parent = SettingsFrame
 ContentDownButton.MouseButton1Click:Connect(function()
-    ContentFrame.Position = UDim2.new(ContentFrame.Position.X.Scale, ContentFrame.Position.X.Offset, ContentFrame.Position.Y.Scale, ContentFrame.Position.Y.Offset + moveStep)
+    -- Сдвиг вниз: увеличить PaddingTop
+    local currentTop = UIPaddingContent.PaddingTop.Offset
+    UIPaddingContent.PaddingTop = UDim.new(0, currentTop + moveStep)
 end)
 
 local ContentRightButton = Instance.new("TextButton")
@@ -196,10 +216,12 @@ ContentRightButton.Text = "→"
 ContentRightButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ContentRightButton.Parent = SettingsFrame
 ContentRightButton.MouseButton1Click:Connect(function()
-    ContentFrame.Position = UDim2.new(ContentFrame.Position.X.Scale, ContentFrame.Position.X.Offset + moveStep, ContentFrame.Position.Y.Scale, ContentFrame.Position.Y.Offset)
+    -- Сдвиг вправо: увеличить PaddingLeft
+    local currentLeft = UIPaddingContent.PaddingLeft.Offset
+    UIPaddingContent.PaddingLeft = UDim.new(0, currentLeft + moveStep)
 end)
 
--- Настройка перемещения TabContainer (только вверх-вниз)
+-- Настройка перемещения Tab (вкладок внутри TabContainer)
 local TabMoveLabel = Instance.new("TextLabel")
 TabMoveLabel.Size = UDim2.new(1, 0, 0, 30)
 TabMoveLabel.Position = UDim2.new(0, 10, 0, 140)
@@ -217,7 +239,9 @@ TabUpButton.Text = "↑"
 TabUpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 TabUpButton.Parent = SettingsFrame
 TabUpButton.MouseButton1Click:Connect(function()
-    TabContainer.Position = UDim2.new(TabContainer.Position.X.Scale, TabContainer.Position.X.Offset, TabContainer.Position.Y.Scale, TabContainer.Position.Y.Offset - moveStep)
+    for _, button in ipairs(tabButtons) do
+        button.Position = UDim2.new(button.Position.X.Scale, button.Position.X.Offset, button.Position.Y.Scale, button.Position.Y.Offset - moveStep)
+    end
 end)
 
 local TabDownButton = Instance.new("TextButton")
@@ -228,7 +252,9 @@ TabDownButton.Text = "↓"
 TabDownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 TabDownButton.Parent = SettingsFrame
 TabDownButton.MouseButton1Click:Connect(function()
-    TabContainer.Position = UDim2.new(TabContainer.Position.X.Scale, TabContainer.Position.X.Offset, TabContainer.Position.Y.Scale, TabContainer.Position.Y.Offset + moveStep)
+    for _, button in ipairs(tabButtons) do
+        button.Position = UDim2.new(button.Position.X.Scale, button.Position.X.Offset, button.Position.Y.Scale, button.Position.Y.Offset + moveStep)
+    end
 end)
 
 -- Добавьте больше настроек по необходимости
