@@ -65,7 +65,7 @@ SettingsGui.ResetOnSpawn = false
 SettingsGui.IgnoreGuiInset = true
 
 local SettingsFrame = Instance.new("Frame")
-SettingsFrame.Size = UDim2.new(0, 200, 0, 350)
+SettingsFrame.Size = UDim2.new(0, 200, 0, 250)  -- Фиксированная высота, чтобы не было слишком длинным
 SettingsFrame.Position = UDim2.new(0, 10, 0, 10)  -- Позиция в верхнем левом углу
 SettingsFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 SettingsFrame.BorderSizePixel = 0
@@ -76,7 +76,19 @@ local SettingsCorner = Instance.new("UICorner")
 SettingsCorner.CornerRadius = UDim.new(0, 8)
 SettingsCorner.Parent = SettingsFrame
 
--- Перетаскивание для SettingsFrame
+-- Создать ScrollingFrame внутри SettingsFrame для прокрутки содержимого
+local SettingsScrolling = Instance.new("ScrollingFrame")
+SettingsScrolling.Size = UDim2.new(1, 0, 1, 0)
+SettingsScrolling.Position = UDim2.new(0, 0, 0, 0)
+SettingsScrolling.BackgroundTransparency = 1
+SettingsScrolling.BorderSizePixel = 0
+SettingsScrolling.Parent = SettingsFrame
+SettingsScrolling.AutomaticCanvasSize = Enum.AutomaticSize.Y
+SettingsScrolling.CanvasSize = UDim2.new(0, 0, 0, 0)
+SettingsScrolling.ScrollBarThickness = 10
+SettingsScrolling.ScrollingDirection = Enum.ScrollingDirection.Y
+
+-- Перетаскивание для SettingsFrame (работает на всём фрейме)
 local settingsDragging, settingsDragInput, settingsDragStart, settingsStartPos
 local function settingsUpdate(input)
     local delta = input.Position - settingsDragStart
@@ -128,7 +140,7 @@ TextSizeLabel.BackgroundTransparency = 1
 TextSizeLabel.Text = "Размер текста: " .. textSize
 TextSizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TextSizeLabel.TextSize = 12
-TextSizeLabel.Parent = SettingsFrame
+TextSizeLabel.Parent = SettingsScrolling
 
 local function updateTextSize()
     for _, label in ipairs(textLabels) do
@@ -143,7 +155,7 @@ UpButton.Position = UDim2.new(1, -40, 0, 15)
 UpButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 UpButton.Text = "↑"
 UpButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-UpButton.Parent = SettingsFrame
+UpButton.Parent = SettingsScrolling
 UpButton.MouseButton1Click:Connect(function()
     textSize = math.min(textSize + 1, 30)  -- Макс 30
     updateTextSize()
@@ -155,7 +167,7 @@ DownButton.Position = UDim2.new(1, -40, 0, 40)
 DownButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 DownButton.Text = "↓"
 DownButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-DownButton.Parent = SettingsFrame
+DownButton.Parent = SettingsScrolling
 DownButton.MouseButton1Click:Connect(function()
     textSize = math.max(textSize - 1, 5)  -- Мин 5
     updateTextSize()
@@ -169,7 +181,7 @@ ContentMoveLabel.BackgroundTransparency = 1
 ContentMoveLabel.Text = "Перемещение Content:"
 ContentMoveLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 ContentMoveLabel.TextSize = 12
-ContentMoveLabel.Parent = SettingsFrame
+ContentMoveLabel.Parent = SettingsScrolling
 
 local moveStep = 5
 
@@ -179,7 +191,7 @@ ContentLeftButton.Position = UDim2.new(0, 10, 0, 100)
 ContentLeftButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 ContentLeftButton.Text = "←"
 ContentLeftButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentLeftButton.Parent = SettingsFrame
+ContentLeftButton.Parent = SettingsScrolling
 ContentLeftButton.MouseButton1Click:Connect(function()
     local currentLeft = UIPaddingContent.PaddingLeft.Offset
     local currentRight = UIPaddingContent.PaddingRight.Offset
@@ -193,7 +205,7 @@ ContentUpButton.Position = UDim2.new(0, 50, 0, 100)
 ContentUpButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 ContentUpButton.Text = "↑"
 ContentUpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentUpButton.Parent = SettingsFrame
+ContentUpButton.Parent = SettingsScrolling
 ContentUpButton.MouseButton1Click:Connect(function()
     local currentTop = UIPaddingContent.PaddingTop.Offset
     UIPaddingContent.PaddingTop = UDim.new(0, math.max(currentTop - moveStep, -50))
@@ -205,7 +217,7 @@ ContentDownButton.Position = UDim2.new(0, 90, 0, 100)
 ContentDownButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 ContentDownButton.Text = "↓"
 ContentDownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentDownButton.Parent = SettingsFrame
+ContentDownButton.Parent = SettingsScrolling
 ContentDownButton.MouseButton1Click:Connect(function()
     local currentTop = UIPaddingContent.PaddingTop.Offset
     UIPaddingContent.PaddingTop = UDim.new(0, currentTop + moveStep)
@@ -217,7 +229,7 @@ ContentRightButton.Position = UDim2.new(0, 130, 0, 100)
 ContentRightButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 ContentRightButton.Text = "→"
 ContentRightButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentRightButton.Parent = SettingsFrame
+ContentRightButton.Parent = SettingsScrolling
 ContentRightButton.MouseButton1Click:Connect(function()
     local currentLeft = UIPaddingContent.PaddingLeft.Offset
     local currentRight = UIPaddingContent.PaddingRight.Offset
@@ -233,7 +245,7 @@ TabMoveLabel.BackgroundTransparency = 1
 TabMoveLabel.Text = "Перемещение Tab:"
 TabMoveLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TabMoveLabel.TextSize = 12
-TabMoveLabel.Parent = SettingsFrame
+TabMoveLabel.Parent = SettingsScrolling
 
 local TabUpButton = Instance.new("TextButton")
 TabUpButton.Size = UDim2.new(0, 30, 0, 30)
@@ -241,7 +253,7 @@ TabUpButton.Position = UDim2.new(0, 10, 0, 170)
 TabUpButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 TabUpButton.Text = "↑"
 TabUpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-TabUpButton.Parent = SettingsFrame
+TabUpButton.Parent = SettingsScrolling
 TabUpButton.MouseButton1Click:Connect(function()
     for _, button in ipairs(tabButtons) do
         button.Position = UDim2.new(button.Position.X.Scale, button.Position.X.Offset, button.Position.Y.Scale, button.Position.Y.Offset - moveStep)
@@ -254,7 +266,7 @@ TabDownButton.Position = UDim2.new(0, 50, 0, 170)
 TabDownButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 TabDownButton.Text = "↓"
 TabDownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-TabDownButton.Parent = SettingsFrame
+TabDownButton.Parent = SettingsScrolling
 TabDownButton.MouseButton1Click:Connect(function()
     for _, button in ipairs(tabButtons) do
         button.Position = UDim2.new(button.Position.X.Scale, button.Position.X.Offset, button.Position.Y.Scale, button.Position.Y.Offset + moveStep)
@@ -269,7 +281,7 @@ ResizeLabel.BackgroundTransparency = 1
 ResizeLabel.Text = "Расширение GUI:"
 ResizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 ResizeLabel.TextSize = 12
-ResizeLabel.Parent = SettingsFrame
+ResizeLabel.Parent = SettingsScrolling
 
 local resizeStep = 5
 
@@ -281,7 +293,7 @@ TabResizeLabel.BackgroundTransparency = 1
 TabResizeLabel.Text = "Tab (ширина):"
 TabResizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TabResizeLabel.TextSize = 12
-TabResizeLabel.Parent = SettingsFrame
+TabResizeLabel.Parent = SettingsScrolling
 
 local TabWidthPlus = Instance.new("TextButton")
 TabWidthPlus.Size = UDim2.new(0, 30, 0, 30)
@@ -289,7 +301,7 @@ TabWidthPlus.Position = UDim2.new(0, 10, 0, 260)
 TabWidthPlus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 TabWidthPlus.Text = "+"
 TabWidthPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
-TabWidthPlus.Parent = SettingsFrame
+TabWidthPlus.Parent = SettingsScrolling
 TabWidthPlus.MouseButton1Click:Connect(function()
     local newTabWidth = TabContainer.Size.X.Offset + resizeStep
     TabContainer.Size = UDim2.new(0, newTabWidth, 1, 0)
@@ -303,7 +315,7 @@ TabWidthMinus.Position = UDim2.new(0, 50, 0, 260)
 TabWidthMinus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 TabWidthMinus.Text = "-"
 TabWidthMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
-TabWidthMinus.Parent = SettingsFrame
+TabWidthMinus.Parent = SettingsScrolling
 TabWidthMinus.MouseButton1Click:Connect(function()
     local newTabWidth = math.max(TabContainer.Size.X.Offset - resizeStep, 50)  -- Мин ширина 50
     TabContainer.Size = UDim2.new(0, newTabWidth, 1, 0)
@@ -319,7 +331,7 @@ ContentResizeLabel.BackgroundTransparency = 1
 ContentResizeLabel.Text = "Content (ширина):"
 ContentResizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 ContentResizeLabel.TextSize = 12
-ContentResizeLabel.Parent = SettingsFrame
+ContentResizeLabel.Parent = SettingsScrolling
 
 local ContentWidthPlus = Instance.new("TextButton")
 ContentWidthPlus.Size = UDim2.new(0, 30, 0, 30)
@@ -327,7 +339,7 @@ ContentWidthPlus.Position = UDim2.new(0, 10, 0, 310)
 ContentWidthPlus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 ContentWidthPlus.Text = "+"
 ContentWidthPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentWidthPlus.Parent = SettingsFrame
+ContentWidthPlus.Parent = SettingsScrolling
 ContentWidthPlus.MouseButton1Click:Connect(function()
     local newContentWidth = ContentFrame.Size.X.Offset + resizeStep
     ContentFrame.Size = UDim2.new(0, newContentWidth, 1, 0)
@@ -340,7 +352,7 @@ ContentWidthMinus.Position = UDim2.new(0, 50, 0, 310)
 ContentWidthMinus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 ContentWidthMinus.Text = "-"
 ContentWidthMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
-ContentWidthMinus.Parent = SettingsFrame
+ContentWidthMinus.Parent = SettingsScrolling
 ContentWidthMinus.MouseButton1Click:Connect(function()
     local newContentWidth = math.max(ContentFrame.Size.X.Offset - resizeStep, 100)  -- Мин ширина 100
     ContentFrame.Size = UDim2.new(0, newContentWidth, 1, 0)
@@ -355,7 +367,7 @@ HeightResizeLabel.BackgroundTransparency = 1
 HeightResizeLabel.Text = "Высота GUI:"
 HeightResizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 HeightResizeLabel.TextSize = 12
-HeightResizeLabel.Parent = SettingsFrame
+HeightResizeLabel.Parent = SettingsScrolling
 
 local HeightPlus = Instance.new("TextButton")
 HeightPlus.Size = UDim2.new(0, 30, 0, 30)
@@ -363,7 +375,7 @@ HeightPlus.Position = UDim2.new(0, 10, 0, 360)
 HeightPlus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 HeightPlus.Text = "+"
 HeightPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
-HeightPlus.Parent = SettingsFrame
+HeightPlus.Parent = SettingsScrolling
 HeightPlus.MouseButton1Click:Connect(function()
     local newHeight = MainFrame.Size.Y.Offset + resizeStep
     MainFrame.Size = UDim2.new(0, MainFrame.Size.X.Offset, 0, newHeight)
@@ -375,7 +387,7 @@ HeightMinus.Position = UDim2.new(0, 50, 0, 360)
 HeightMinus.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 HeightMinus.Text = "-"
 HeightMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
-HeightMinus.Parent = SettingsFrame
+HeightMinus.Parent = SettingsScrolling
 HeightMinus.MouseButton1Click:Connect(function()
     local newHeight = math.max(MainFrame.Size.Y.Offset - resizeStep, 150)  -- Мин высота 150
     MainFrame.Size = UDim2.new(0, MainFrame.Size.X.Offset, 0, newHeight)
