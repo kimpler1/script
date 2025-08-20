@@ -420,6 +420,14 @@ PaddingPlus.MouseButton1Click:Connect(function()
     local newPadding = UIListLayout.Padding.Offset + 1
     UIListLayout.Padding = UDim.new(0, newPadding)
     PaddingLabel.Text = "Отступ функций: " .. newPadding
+    -- Обновить CanvasSize
+    local totalHeight = 0
+    for _, slider in pairs(ContentFrame:GetChildren()) do
+        if slider:IsA("Frame") and slider.Visible then
+            totalHeight = totalHeight + slider.AbsoluteSize.Y + newPadding
+        end
+    end
+    ContentFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
 end)
 
 local PaddingMinus = Instance.new("TextButton")
@@ -433,6 +441,56 @@ PaddingMinus.MouseButton1Click:Connect(function()
     local newPadding = math.max(UIListLayout.Padding.Offset - 1, 0)  -- Мин 0
     UIListLayout.Padding = UDim.new(0, newPadding)
     PaddingLabel.Text = "Отступ функций: " .. newPadding
+    -- Обновить CanvasSize
+    local totalHeight = 0
+    for _, slider in pairs(ContentFrame:GetChildren()) do
+        if slider:IsA("Frame") and slider.Visible then
+            totalHeight = totalHeight + slider.AbsoluteSize.Y + newPadding
+        end
+    end
+    ContentFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
 end)
+
+-- Кнопка Save Settings
+local SaveButton = Instance.new("TextButton")
+SaveButton.Size = UDim2.new(1, -20, 0, 30)
+SaveButton.Position = UDim2.new(0, 10, 0, 460)
+SaveButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+SaveButton.Text = "Save Settings"
+SaveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+SaveButton.TextSize = 12
+SaveButton.Parent = SettingsScrolling
+SaveButton.MouseButton1Click:Connect(function()
+    local code = "-- Вставьте это в main.lua для фиксации настроек:\n"
+    code = code .. "MainFrame.Size = UDim2.new(0, " .. MainFrame.Size.X.Offset .. ", 0, " .. MainFrame.Size.Y.Offset .. ")\n"
+    code = code .. "TabContainer.Size = UDim2.new(0, " .. TabContainer.Size.X.Offset .. ", 1, 0)\n"
+    code = code .. "ContentFrame.Size = UDim2.new(0, " .. ContentFrame.Size.X.Offset .. ", 1, 0)\n"
+    code = code .. "ContentFrame.Position = UDim2.new(0, " .. ContentFrame.Position.X.Offset .. ", 0, 0)\n"
+    code = code .. "UIPadding.PaddingTop = UDim.new(0, " .. UIPaddingContent.PaddingTop.Offset .. ")\n"
+    code = code .. "UIPadding.PaddingLeft = UDim.new(0, " .. UIPaddingContent.PaddingLeft.Offset .. ")\n"
+    code = code .. "UIPadding.PaddingRight = UDim.new(0, " .. UIPaddingContent.PaddingRight.Offset .. ")\n"
+    code = code .. "UIListLayout.Padding = UDim.new(0, " .. UIListLayout.Padding.Offset .. ")\n"
+    -- Позиции таб-кнопок
+    for i, button in ipairs(tabButtons) do
+        code = code .. "tabButtons[" .. i .. "].Position = UDim2.new(0, " .. button.Position.X.Offset .. ", 0, " .. button.Position.Y.Offset .. ")\n"
+    end
+    -- Вывод в консоль (для отладки)
+    print(code)
+    -- Установка в TextBox
+    CodeTextBox.Text = code
+end)
+
+-- TextBox для кода под кнопкой
+local CodeTextBox = Instance.new("TextBox")
+CodeTextBox.Size = UDim2.new(1, -20, 0, 100)
+CodeTextBox.Position = UDim2.new(0, 10, 0, 500)
+CodeTextBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+CodeTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+CodeTextBox.TextSize = 12
+CodeTextBox.TextWrapped = true
+CodeTextBox.MultiLine = true
+CodeTextBox.ClearTextOnFocus = false
+CodeTextBox.Text = "Нажмите 'Save Settings' для генерации кода"
+CodeTextBox.Parent = SettingsScrolling
 
 -- Добавьте больше настроек по необходимости
