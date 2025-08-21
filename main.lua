@@ -204,9 +204,9 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         toggleFunction()
     end)
     if hasSpeedSlider then
-        local speedValue = 50  -- Начальное значение скорости (0-100)
+        local speedValue = 50 -- Начальное значение скорости (0-100)
         local SpeedSliderBackground = Instance.new("Frame")
-        SpeedSliderBackground.Size = UDim2.new(1, -20, 0, 9)  -- Относительная ширина
+        SpeedSliderBackground.Size = UDim2.new(1, -20, 0, 9) -- Относительная ширина
         SpeedSliderBackground.Position = UDim2.new(0, 10, 0, 34)
         SpeedSliderBackground.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
         SpeedSliderBackground.BackgroundTransparency = 0.5
@@ -349,7 +349,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 -- Фиксированные настройки для main.lua
 
 -- Размер текста
-textSize = 11
+local textSize = 11
 for _, gui in ipairs(ScreenGui:GetDescendants()) do
     if gui:IsA("TextLabel") or gui:IsA("TextButton") then
         gui.TextSize = textSize
@@ -362,14 +362,12 @@ UIPadding.PaddingRight = UDim.new(0, -5)
 UIPadding.PaddingTop = UDim.new(0, 39)
 
 -- Позиционирование вкладок (TabButtons)
--- Примечание: Для каждой кнопки отдельно, если нужно
--- Например:
 for i, button in ipairs(tabButtons) do
-    button.Position = UDim2.new(button.Position.X.Scale, 4, button.Position.Y.Scale, 5) -- Пример для первой кнопки, адаптируйте
+    button.Position = UDim2.new(button.Position.X.Scale, 4, button.Position.Y.Scale, button.Position.Y.Offset + 5)
 end
 
 -- Размеры фреймов
-MainFrame.Size = UDim2.new(0, 350, 0, 220) -- Ширина = Tab + Content, высота
+MainFrame.Size = UDim2.new(0, 350, 0, 220)
 TabContainer.Size = UDim2.new(0, 95, 1, 0)
 ContentFrame.Position = UDim2.new(0, 95, 0, 0)
 ContentFrame.Size = UDim2.new(0, 255, 1, 0)
