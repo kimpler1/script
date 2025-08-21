@@ -345,3 +345,34 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Text = "GUI с функциями от Grok",
     Duration = 5
 })
+
+-- Фиксированные настройки для main.lua
+
+-- Размер текста
+textSize = 11
+for _, gui in ipairs(ScreenGui:GetDescendants()) do
+    if gui:IsA("TextLabel") or gui:IsA("TextButton") then
+        gui.TextSize = textSize
+    end
+end
+
+-- Позиционирование Content (UIPaddingContent)
+UIPadding.PaddingLeft = UDim.new(0, 5)
+UIPadding.PaddingRight = UDim.new(0, -5)
+UIPadding.PaddingTop = UDim.new(0, 39)
+
+-- Позиционирование вкладок (TabButtons)
+-- Примечание: Для каждой кнопки отдельно, если нужно
+-- Например:
+for i, button in ipairs(tabButtons) do
+    button.Position = UDim2.new(button.Position.X.Scale, 4, button.Position.Y.Scale, 5) -- Пример для первой кнопки, адаптируйте
+end
+
+-- Размеры фреймов
+MainFrame.Size = UDim2.new(0, 350, 0, 220) -- Ширина = Tab + Content, высота
+TabContainer.Size = UDim2.new(0, 95, 1, 0)
+ContentFrame.Position = UDim2.new(0, 95, 0, 0)
+ContentFrame.Size = UDim2.new(0, 255, 1, 0)
+
+-- Отступ функций (UIListLayout.Padding)
+UIListLayout.Padding = UDim.new(0, 7)
