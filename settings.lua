@@ -71,7 +71,7 @@ SettingsGui.ResetOnSpawn = false
 SettingsGui.IgnoreGuiInset = true
 
 local SettingsFrame = Instance.new("Frame")
-SettingsFrame.Size = UDim2.new(0, 200, 0, 250)  -- Фиксированная высота, чтобы не было слишком длинным
+SettingsFrame.Size = UDim2.new(0, 200, 0, 400)  -- Увеличил высоту для текстового окна
 SettingsFrame.Position = UDim2.new(0, 10, 0, 10)  -- Позиция в верхнем левом углу
 SettingsFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 SettingsFrame.BorderSizePixel = 0
@@ -433,6 +433,55 @@ PaddingMinus.MouseButton1Click:Connect(function()
     local newPadding = math.max(UIListLayout.Padding.Offset - 1, 0)  -- Мин 0
     UIListLayout.Padding = UDim.new(0, newPadding)
     PaddingLabel.Text = "Отступ функций: " .. newPadding
+end)
+
+-- Новое: Текстовое окно для редактирования кода и кнопка "Применить изменения"
+-- Предполагаем, что "код" - это некоторый Lua-код, который пользователь может редактировать.
+-- Для демонстрации используем placeholder-код. В реальности вы можете генерировать код на основе настроек.
+-- Примечание: Динамическое выполнение кода в Roblox ограничено безопасностью (loadstring не работает в client-scripts).
+-- Здесь мы просто обновляем текст в окне после "применения", но не выполняем код. Если нужно выполнение, это требует серверной стороны или других методов.
+
+local CodeEditorLabel = Instance.new("TextLabel")
+CodeEditorLabel.Size = UDim2.new(1, 0, 0, 20)
+CodeEditorLabel.Position = UDim2.new(0, 10, 0, 460)
+CodeEditorLabel.BackgroundTransparency = 1
+CodeEditorLabel.Text = "Редактор кода:"
+CodeEditorLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+CodeEditorLabel.TextSize = 12
+CodeEditorLabel.Parent = SettingsScrolling
+
+local CodeTextBox = Instance.new("TextBox")
+CodeTextBox.Size = UDim2.new(1, -20, 0, 100)  -- Высота для многострочного ввода
+CodeTextBox.Position = UDim2.new(0, 10, 0, 480)
+CodeTextBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+CodeTextBox.BorderSizePixel = 0
+CodeTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+CodeTextBox.TextSize = 12
+CodeTextBox.MultiLine = true
+CodeTextBox.ClearTextOnFocus = false
+CodeTextBox.TextWrapped = true
+CodeTextBox.Text = "-- Вставьте ваш Lua-код здесь\nlocal example = 1\nprint(example)"  -- Начальный код (placeholder)
+CodeTextBox.Parent = SettingsScrolling
+
+local ApplyButton = Instance.new("TextButton")
+ApplyButton.Size = UDim2.new(0, 100, 0, 30)
+ApplyButton.Position = UDim2.new(0, 10, 0, 590)
+ApplyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+ApplyButton.Text = "Применить изменения"
+ApplyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ApplyButton.TextSize = 12
+ApplyButton.Parent = SettingsScrolling
+ApplyButton.MouseButton1Click:Connect(function()
+    -- Здесь логика применения изменений.
+    -- Поскольку динамическое выполнение кода ограничено, мы просто обновляем текст в TextBox (например, добавляем комментарий).
+    -- В реальности: если код для настроек, парсите его и применяйте изменения к GUI.
+    -- Для примера: добавляем строку в код, чтобы показать "изменение".
+    local editedCode = CodeTextBox.Text
+    -- Симулируем применение: добавляем комментарий
+    editedCode = editedCode .. "\n-- Изменения применены"
+    CodeTextBox.Text = editedCode
+    -- Если нужно выполнить: warn("Попытка выполнения: " .. editedCode) -- Но loadstring не работает.
+    -- Для реального применения: парсите код как строку и применяйте свойства, если это конфиг.
 end)
 
 -- Добавьте больше настроек по необходимости
