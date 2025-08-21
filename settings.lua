@@ -435,14 +435,12 @@ PaddingMinus.MouseButton1Click:Connect(function()
     PaddingLabel.Text = "Отступ функций: " .. newPadding
 end)
 
--- Новое: Текстовое окно для редактирования кода и кнопка "Применить изменения"
--- Уменьшил высоту CodeTextBox для компактности
-
+-- Новое: Текстовое окно для отображения сгенерированного кода и кнопка "Сохранить настройки"
 local CodeEditorLabel = Instance.new("TextLabel")
 CodeEditorLabel.Size = UDim2.new(1, 0, 0, 20)
 CodeEditorLabel.Position = UDim2.new(0, 10, 0, 460)
 CodeEditorLabel.BackgroundTransparency = 1
-CodeEditorLabel.Text = "Редактор кода:"
+CodeEditorLabel.Text = "Генератор кода настроек:"
 CodeEditorLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 CodeEditorLabel.TextSize = 12
 CodeEditorLabel.Parent = SettingsScrolling
@@ -457,21 +455,62 @@ CodeTextBox.TextSize = 12
 CodeTextBox.MultiLine = true
 CodeTextBox.ClearTextOnFocus = false
 CodeTextBox.TextWrapped = true
-CodeTextBox.Text = "-- Вставьте ваш Lua-код здесь\nlocal example = 1\nprint(example)"  -- Начальный код (placeholder)
+CodeTextBox.Text = "-- Здесь появится код с настройками после сохранения"
 CodeTextBox.Parent = SettingsScrolling
 
-local ApplyButton = Instance.new("TextButton")
-ApplyButton.Size = UDim2.new(0, 100, 0, 30)
-ApplyButton.Position = UDim2.new(0, 10, 0, 550)  -- Скорректировал позицию
-ApplyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-ApplyButton.Text = "Применить изменения"
-ApplyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ApplyButton.TextSize = 12
-ApplyButton.Parent = SettingsScrolling
-ApplyButton.MouseButton1Click:Connect(function()
-    local editedCode = CodeTextBox.Text
-    -- Симулируем применение: теперь без добавления комментария, просто оставляем измененный код
-    CodeTextBox.Text = editedCode
+local SaveButton = Instance.new("TextButton")
+SaveButton.Size = UDim2.new(0, 100, 0, 30)
+SaveButton.Position = UDim2.new(0, 10, 0, 550)  -- Скорректировал позицию
+SaveButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+SaveButton.Text = "Сохранить настройки"
+SaveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+SaveButton.TextSize = 12
+SaveButton.Parent = SettingsScrolling
+SaveButton.MouseButton1Click:Connect(function()
+    -- Генерируем код с текущими значениями настроек
+    local generatedCode = string.format([[
+-- Фиксированные настройки для main.lua
+
+-- Размер текста
+textSize = %d
+
+-- Позиционирование Content (UIPaddingContent)
+UIPaddingContent.PaddingLeft = UDim.new(0, %d)
+UIPaddingContent.PaddingRight = UDim.new(0, %d)
+UIPaddingContent.PaddingTop = UDim.new(0, %d)
+
+-- Позиционирование вкладок (TabButtons)
+-- Примечание: Для каждой кнопки отдельно, если нужно
+-- Например:
+for i, button in ipairs(tabButtons) do
+    button.Position = UDim2.new(button.Position.X.Scale, %d, button.Position.Y.Scale, %d)  -- Пример для первой кнопки, адаптируйте
+end
+
+-- Размеры фреймов
+MainFrame.Size = UDim2.new(0, %d, 0, %d)  -- Ширина = Tab + Content, высота
+TabContainer.Size = UDim2.new(0, %d, 1, 0)
+ContentFrame.Position = UDim2.new(0, %d, 0, 0)
+ContentFrame.Size = UDim2.new(0, %d, 1, 0)
+
+-- Отступ функций (UIListLayout.Padding)
+UIListLayout.Padding = UDim.new(0, %d)
+
+-- Вставьте этот код в main.lua после создания элементов GUI
+]],
+        textSize,
+        UIPaddingContent.PaddingLeft.Offset,
+        UIPaddingContent.PaddingRight.Offset,
+        UIPaddingContent.PaddingTop.Offset,
+        tabButtons[1] and tabButtons[1].Position.X.Offset or 0,  -- Пример для X позиции первой кнопки
+        tabButtons[1] and tabButtons[1].Position.Y.Offset or 0,  -- Пример для Y позиции первой кнопки
+        MainFrame.Size.X.Offset,
+        MainFrame.Size.Y.Offset,
+        TabContainer.Size.X.Offset,
+        TabContainer.Size.X.Offset,
+        ContentFrame.Size.X.Offset,
+        UIListLayout.Padding.Offset
+    )
+    CodeTextBox.Text = generatedCode
 end)
 
 -- Добавьте больше настроек по необходимости
