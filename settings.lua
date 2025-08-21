@@ -139,6 +139,13 @@ end)
 
 -- Настройка размера текста
 local textSize = 10  -- Начальный размер
+local function updateTextSize()
+    for _, label in ipairs(textLabels) do
+        label.TextSize = textSize
+    end
+    TextSizeLabel.Text = "Размер текста: " .. textSize
+end
+
 local TextSizeLabel = Instance.new("TextLabel")
 TextSizeLabel.Size = UDim2.new(1, -50, 0, 30)
 TextSizeLabel.Position = UDim2.new(0, 10, 0, 10)
@@ -147,13 +154,6 @@ TextSizeLabel.Text = "Размер текста: " .. textSize
 TextSizeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TextSizeLabel.TextSize = 12
 TextSizeLabel.Parent = SettingsScrolling
-
-local function updateTextSize()
-    for _, label in ipairs(textLabels) do
-        label.TextSize = textSize
-    end
-    TextSizeLabel.Text = "Размер текста: " .. textSize
-end
 
 local UpButton = Instance.new("TextButton")
 UpButton.Size = UDim2.new(0, 20, 0, 20)
@@ -470,8 +470,7 @@ ApplyButton.TextSize = 12
 ApplyButton.Parent = SettingsScrolling
 ApplyButton.MouseButton1Click:Connect(function()
     local editedCode = CodeTextBox.Text
-    -- Симулируем применение: добавляем комментарий
-    editedCode = editedCode .. "\n-- Изменения применены"
+    -- Симулируем применение: теперь без добавления комментария, просто оставляем измененный код
     CodeTextBox.Text = editedCode
 end)
 
