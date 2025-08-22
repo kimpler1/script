@@ -3,6 +3,7 @@ local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local ContextActionService = game:GetService("ContextActionService")
 if not LocalPlayer then
     warn("Скрипт не может найти локального игрока. Попробуйте перезапустить игру.")
     return
@@ -28,23 +29,27 @@ local function update(input)
     local delta = input.Position - dragStart
     MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 end
-MainFrame.InputBegan:Connect(function(input)
+local function startDrag(input, frame)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = MainFrame.Position
+        ContextActionService:BindAction("FreezeCamera", function() return Enum.ContextActionResult.Sink end, false, Enum.UserInputType.TouchMoved)
         input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
                 dragging = false
+                ContextActionService:UnbindAction("FreezeCamera")
             end
         end)
     end
-end)
-MainFrame.InputChanged:Connect(function(input)
+end
+local function handleInputChanged(input, frame)
     if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
         dragInput = input
     end
-end)
+end
+MainFrame.InputBegan:Connect(function(input) startDrag(input, MainFrame) end)
+MainFrame.InputChanged:Connect(function(input) handleInputChanged(input, MainFrame) end)
 UserInputService.InputChanged:Connect(function(input)
     if dragging and input == dragInput then
         update(input)
@@ -56,6 +61,8 @@ TabContainer.Size = UDim2.new(0, 85, 1, 0)
 TabContainer.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
 TabContainer.BorderSizePixel = 0
 TabContainer.Parent = MainFrame
+TabContainer.InputBegan:Connect(function(input) startDrag(input, TabContainer) end)
+TabContainer.InputChanged:Connect(function(input) handleInputChanged(input, TabContainer) end)
 local TabCorner = Instance.new("UICorner")
 TabCorner.CornerRadius = UDim.new(0, 9)
 TabCorner.Parent = TabContainer
@@ -70,6 +77,8 @@ ContentFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 ContentFrame.ScrollBarThickness = 9
 ContentFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+ContentFrame.InputBegan:Connect(function(input) startDrag(input, ContentFrame) end)
+ContentFrame.InputChanged:Connect(function(input) handleInputChanged(input, ContentFrame) end)
 local ContentCorner = Instance.new("UICorner")
 ContentCorner.CornerRadius = UDim.new(0, 9)
 ContentCorner.Parent = ContentFrame
