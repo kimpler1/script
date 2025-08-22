@@ -24,17 +24,20 @@ MainFrame.Visible = true
 local MainCorner = Instance.new("UICorner")
 MainCorner.CornerRadius = UDim.new(0, 9)
 MainCorner.Parent = MainFrame
-local dragging, dragInput, dragStart, startPos
+local dragging = false
+local dragInput, dragStart, startPos
+local isDraggingAnySlider = false
 local function update(input)
     local delta = input.Position - dragStart
     MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 end
 local function startDrag(input, frame)
+    if isDraggingAnySlider then return end
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = MainFrame.Position
-        ContextActionService:BindAction("FreezeCamera", function() return Enum.ContextActionResult.Sink end, false, Enum.UserInputType.TouchMoved)
+        ContextActionService:BindAction("FreezeCamera", function() return Enum.ContextActionResult.Sink end, false, Enum.UserInputType.MouseMovement, Enum.UserInputType.Touch)
         input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
                 dragging = false
@@ -237,6 +240,7 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         local draggingSpeed = false
         local dragConnection
         local function startDrag(input)
+            isDraggingAnySlider = true
             local sliderPosX = SpeedSliderBackground.AbsolutePosition.X
             local sliderWidth = SpeedSliderBackground.AbsoluteSize.X
             local knobWidth = SpeedSliderKnob.AbsoluteSize.X
@@ -244,7 +248,9 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
             local relativeX = mouseX - sliderPosX
             local normalizedPos = math.clamp(relativeX / sliderWidth, 0, 1)
             local newPosX = normalizedPos * (sliderWidth - knobWidth)
-            SpeedSliderKnob.Position = UDim2.new(0, newPosX, 0, -7)
+            local newPos = UDim2.new(0, newPosX, 0, -7)
+            local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
+            TweenService:Create(SpeedSliderKnob, tweenInfo, {Position = newPos}):Play()
             speedValue = math.floor(normalizedPos * 100)
             if speedHackEnabled then
                 toggleSpeedHack()
@@ -277,6 +283,7 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         UserInputService.InputEnded:Connect(function(input)
             if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and draggingSpeed then
                 draggingSpeed = false
+                isDraggingAnySlider = false
                 if dragConnection then
                     dragConnection:Disconnect()
                     dragConnection = nil
