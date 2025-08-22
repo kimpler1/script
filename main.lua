@@ -208,7 +208,7 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         local SpeedSliderBackground = Instance.new("Frame")
         SpeedSliderBackground.Size = UDim2.new(1, -20, 0, 9) -- Относительная ширина
         SpeedSliderBackground.Position = UDim2.new(0, 10, 0, 34)
-        SpeedSliderBackground.BackgroundColor3 = Color3.fromRGB(119, 119, 119) -- Уменьшил яркость на ~8% от 129 (129 * 0.92 ≈ 119)
+        SpeedSliderBackground.BackgroundColor3 = Color3.fromRGB(109, 109, 109) -- Уменьшил яркость на ~8% от 119 (119 * 0.92 ≈ 109)
         SpeedSliderBackground.BackgroundTransparency = 0.3 -- Уменьшил прозрачность, чтобы цвет был заметнее
         SpeedSliderBackground.BorderSizePixel = 0
         SpeedSliderBackground.Parent = SliderContainer
@@ -259,6 +259,12 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         end)
         UserInputService.InputChanged:Connect(function(input)
             if draggingSpeed and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                updateKnobPosition(input)
+            end
+        end)
+        -- Добавляем обработку TouchMoved для мобильных устройств
+        SpeedSliderBackground.TouchMoved:Connect(function(input)
+            if draggingSpeed then
                 updateKnobPosition(input)
             end
         end)
