@@ -242,19 +242,14 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         end
         -- Обработка клика и драга на всей SpeedSliderBackground
         SpeedSliderBackground.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and input.UserInputState == Enum.UserInputState.Begin then
                 draggingSpeed = true
                 updateKnobPosition(input)
-                input.Changed:Connect(function()
-                    if input.UserInputState == Enum.UserInputState.End then
-                        draggingSpeed = false
-                    end
-                end)
             end
         end)
-        SpeedSliderBackground.InputChanged:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                dragInput = input
+        SpeedSliderBackground.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                draggingSpeed = false
             end
         end)
         UserInputService.InputChanged:Connect(function(input)
