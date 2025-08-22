@@ -208,8 +208,8 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         local SpeedSliderBackground = Instance.new("Frame")
         SpeedSliderBackground.Size = UDim2.new(1, -20, 0, 9) -- Относительная ширина
         SpeedSliderBackground.Position = UDim2.new(0, 10, 0, 34)
-        SpeedSliderBackground.BackgroundColor3 = Color3.fromRGB(109, 109, 109)
-        SpeedSliderBackground.BackgroundTransparency = 0.3
+        SpeedSliderBackground.BackgroundColor3 = Color3.fromRGB(129, 129, 129) -- Уменьшил яркость на ~8% от 140 (140 * 0.92 ≈ 129)
+        SpeedSliderBackground.BackgroundTransparency = 0.3 -- Уменьшил прозрачность, чтобы цвет был заметнее
         SpeedSliderBackground.BorderSizePixel = 0
         SpeedSliderBackground.Parent = SliderContainer
         local SpeedSliderCorner = Instance.new("UICorner")
@@ -242,24 +242,23 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         end
         -- Обработка клика и драга на всей SpeedSliderBackground
         SpeedSliderBackground.InputBegan:Connect(function(input)
-            if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and input.UserInputState == Enum.UserInputState.Begin then
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 draggingSpeed = true
                 updateKnobPosition(input)
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        draggingSpeed = false
+                    end
+                end)
             end
         end)
-        SpeedSliderBackground.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                draggingSpeed = false
+        SpeedSliderBackground.InputChanged:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                dragInput = input
             end
         end)
         UserInputService.InputChanged:Connect(function(input)
             if draggingSpeed and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                updateKnobPosition(input)
-            end
-        end)
-        -- Добавляем обработку TouchMoved для мобильных устройств
-        SpeedSliderBackground.TouchMoved:Connect(function(input)
-            if draggingSpeed then
                 updateKnobPosition(input)
             end
         end)
