@@ -208,7 +208,7 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         local SpeedSliderBackground = Instance.new("Frame")
         SpeedSliderBackground.Size = UDim2.new(1, -20, 0, 9) -- Относительная ширина
         SpeedSliderBackground.Position = UDim2.new(0, 10, 0, 34)
-        SpeedSliderBackground.BackgroundColor3 = Color3.fromRGB(200, 200, 200) -- Изменён на ещё более светлый серый, чтобы был "побелее"
+        SpeedSliderBackground.BackgroundColor3 = Color3.fromRGB(140, 140, 140) -- Уменьшил яркость на ~30% от 200 (200 * 0.7 = 140)
         SpeedSliderBackground.BackgroundTransparency = 0.3 -- Уменьшил прозрачность, чтобы цвет был заметнее
         SpeedSliderBackground.BorderSizePixel = 0
         SpeedSliderBackground.Parent = SliderContainer
@@ -226,9 +226,11 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         SpeedKnobCorner.CornerRadius = UDim.new(0, 13)
         SpeedKnobCorner.Parent = SpeedSliderKnob
         local draggingSpeed = false
+        local lastMousePosition = nil
         SpeedSliderKnob.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 draggingSpeed = true
+                lastMousePosition = input.Position
             end
         end)
         SpeedSliderKnob.InputEnded:Connect(function(input)
@@ -249,6 +251,27 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
                 speedValue = math.floor(normalizedPos * 100)
                 if speedHackEnabled then
                     toggleSpeedHack()
+                end
+                lastMousePosition = input.Position
+            end
+        end)
+        -- Добавляем RunService для более плавного драггинга
+        RunService:BindToRenderStep("SpeedSliderDrag", Enum.RenderPriority.Input.Value, function()
+            if draggingSpeed then
+                local input = UserInputService:GetMouseLocation() or lastMousePosition
+                if input then
+                    local sliderPosX = SpeedSliderBackground.AbsolutePosition.X
+                    local sliderWidth = SpeedSliderBackground.AbsoluteSize.X
+                    local knobWidth = SpeedSliderKnob.AbsoluteSize.X
+                    local mouseX = input.X
+                    local relativeX = mouseX - sliderPosX
+                    local normalizedPos = math.clamp(relativeX / sliderWidth, 0, 1)
+                    local newPosX = normalizedPos * (sliderWidth - knobWidth)
+                    SpeedSliderKnob.Position = UDim2.new(0, newPosX, 0, -7)
+                    speedValue = math.floor(normalizedPos * 100)
+                    if speedHackEnabled then
+                        toggleSpeedHack()
+                    end
                 end
             end
         end)
