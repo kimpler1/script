@@ -227,25 +227,42 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         SpeedKnobCorner.Parent = SpeedSliderKnob
         local draggingSpeed = false
         local dragConnection
+        local function startDrag(input)
+            local sliderPosX = SpeedSliderBackground.AbsolutePosition.X
+            local sliderWidth = SpeedSliderBackground.AbsoluteSize.X
+            local knobWidth = SpeedSliderKnob.AbsoluteSize.X
+            local mouseX = input.Position.X
+            local relativeX = mouseX - sliderPosX
+            local normalizedPos = math.clamp(relativeX / sliderWidth, 0, 1)
+            local newPosX = normalizedPos * (sliderWidth - knobWidth)
+            SpeedSliderKnob.Position = UDim2.new(0, newPosX, 0, -7)
+            speedValue = math.floor(normalizedPos * 100)
+            if speedHackEnabled then
+                toggleSpeedHack()
+            end
+            draggingSpeed = true
+            if dragConnection then dragConnection:Disconnect() end
+            dragConnection = RunService.RenderStepped:Connect(function()
+                if not draggingSpeed then return end
+                local mousePos = UserInputService:GetMouseLocation()
+                local relativeX = mousePos.X - sliderPosX
+                local normalizedPos = math.clamp(relativeX / sliderWidth, 0, 1)
+                local newPosX = normalizedPos * (sliderWidth - knobWidth)
+                SpeedSliderKnob.Position = UDim2.new(0, newPosX, 0, -7)
+                speedValue = math.floor(normalizedPos * 100)
+                if speedHackEnabled then
+                    toggleSpeedHack()
+                end
+            end)
+        end
         SpeedSliderKnob.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                draggingSpeed = true
-                if dragConnection then dragConnection:Disconnect() end
-                dragConnection = RunService.RenderStepped:Connect(function()
-                    if not draggingSpeed then return end
-                    local mousePos = UserInputService:GetMouseLocation()
-                    local sliderPosX = SpeedSliderBackground.AbsolutePosition.X
-                    local sliderWidth = SpeedSliderBackground.AbsoluteSize.X
-                    local knobWidth = SpeedSliderKnob.AbsoluteSize.X
-                    local relativeX = mousePos.X - sliderPosX
-                    local normalizedPos = math.clamp(relativeX / sliderWidth, 0, 1)
-                    local newPosX = normalizedPos * (sliderWidth - knobWidth)
-                    SpeedSliderKnob.Position = UDim2.new(0, newPosX, 0, -7)
-                    speedValue = math.floor(normalizedPos * 100)
-                    if speedHackEnabled then
-                        toggleSpeedHack()
-                    end
-                end)
+                startDrag(input)
+            end
+        end)
+        SpeedSliderBackground.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                startDrag(input)
             end
         end)
         UserInputService.InputEnded:Connect(function(input)
