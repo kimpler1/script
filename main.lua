@@ -208,7 +208,7 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
         local SpeedSliderBackground = Instance.new("Frame")
         SpeedSliderBackground.Size = UDim2.new(1, -20, 0, 9) -- Относительная ширина
         SpeedSliderBackground.Position = UDim2.new(0, 10, 0, 34)
-        SpeedSliderBackground.BackgroundColor3 = Color3.fromRGB(129, 129, 129) -- Уменьшил яркость на ~8% от 140 (140 * 0.92 ≈ 129)
+        SpeedSliderBackground.BackgroundColor3 = Color3.fromRGB(119, 119, 119) -- Уменьшил яркость на ~8% от 129 (129 * 0.92 ≈ 119)
         SpeedSliderBackground.BackgroundTransparency = 0.3 -- Уменьшил прозрачность, чтобы цвет был заметнее
         SpeedSliderBackground.BorderSizePixel = 0
         SpeedSliderBackground.Parent = SliderContainer
