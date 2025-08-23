@@ -165,55 +165,51 @@ CloseButtonMinimized.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 local espEnabled = false
-local espGuis = {}
-local function createESP(player)
-    if player == LocalPlayer then return end
-    local character = player.Character or player.CharacterAdded:Wait()
-    local head = character:WaitForChild("Head")
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "ESP"
-    billboard.Adornee = head
-    billboard.Size = UDim2.new(0, 200, 0, 50)
-    billboard.StudOffset = Vector3.new(0, 3, 0)
-    billboard.AlwaysOnTop = true
-    local text = Instance.new("TextLabel")
-    text.Size = UDim2.new(1, 0, 1, 0)
-    text.BackgroundTransparency = 1
-    text.TextColor3 = Color3.fromRGB(255, 0, 0)
-    text.Text = player.Name
-    text.TextSize = 14
-    text.Parent = billboard
-    billboard.Parent = LocalPlayer.PlayerGui
-    espGuis[player] = billboard
-    -- For health
-    local humanoid = character:WaitForChild("Humanoid")
-    local function updateHealth()
-        text.Text = player.Name .. " | Health: " .. math.floor(humanoid.Health)
+local espHighlights = {}
+local function addHighlight(instance)
+    if instance:IsA("Model") and instance:FindFirstChild("Humanoid") and not espHighlights[instance] then
+        local highlight = Instance.new("Highlight")
+        highlight.Parent = instance
+        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+        highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+        highlight.FillTransparency = 0.5
+        highlight.OutlineTransparency = 0
+        espHighlights[instance] = highlight
     end
-    updateHealth()
-    humanoid.HealthChanged:Connect(updateHealth)
 end
 local function toggleESP()
     espEnabled = not espEnabled
     if espEnabled then
+        -- For players
         for _, player in ipairs(Players:GetPlayers()) do
-            if player.Character then
-                createESP(player)
+            if player ~= LocalPlayer and player.Character then
+                addHighlight(player.Character)
             end
-            player.CharacterAdded:Connect(function()
-                createESP(player)
+            player.CharacterAdded:Connect(function(char)
+                addHighlight(char)
             end)
         end
         Players.PlayerAdded:Connect(function(player)
-            player.CharacterAdded:Connect(function()
-                createESP(player)
+            player.CharacterAdded:Connect(function(char)
+                addHighlight(char)
             end)
+        end
+        -- For NPCs
+        for _, v in ipairs(workspace:GetDescendants()) do
+            if v:IsA("Model") and v:FindFirstChild("Humanoid") and not Players:GetPlayerFromCharacter(v) then
+                addHighlight(v)
+            end
+        end
+        workspace.DescendantAdded:Connect(function(v)
+            if v:IsA("Humanoid") and v.Parent and not Players:GetPlayerFromCharacter(v.Parent) then
+                addHighlight(v.Parent)
+            end
         end)
     else
-        for _, gui in pairs(espGuis) do
-            gui:Destroy()
+        for _, highlight in pairs(espHighlights) do
+            highlight:Destroy()
         end
-        espGuis = {}
+        espHighlights = {}
     end
 end
 local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasSpeedSlider)
