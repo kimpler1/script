@@ -194,9 +194,9 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Экспорт функций
+-- Экспорт функций для использования в GUI
 return {
     toggleESPMobs = toggleESPMobs,
     toggleESPPlayers = toggleESPPlayers,
-    -- Добавь другие функции, если нужно (например, для Combat, Farming и т.д.)
+    -- Добавьте другие функции здесь, если нужно
 }
