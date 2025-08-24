@@ -1,5 +1,3 @@
--- functions.lua: Этот файл содержит функции ESP и другие хаки. В Roblox его можно выполнить отдельно или require в main_gui.lua как ModuleScript.
-
 local Camera = workspace.CurrentCamera
 local espMobsEnabled = false
 local espPlayersEnabled = false
@@ -196,9 +194,9 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Экспорт функций для использования в GUI
+-- Экспорт функций
 return {
     toggleESPMobs = toggleESPMobs,
     toggleESPPlayers = toggleESPPlayers,
-    -- Добавьте другие функции здесь, если нужно
+    -- Добавь другие функции, если нужно (например, для Combat, Farming и т.д.)
 }
