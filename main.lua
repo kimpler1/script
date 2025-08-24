@@ -321,20 +321,32 @@ local function CreateESPForMob(model)
     highlight.Enabled = false
     highlight.Parent = model
 
-    local text = Drawing.new("Text")
-    text.Visible = false
-    text.Size = 14
-    text.Center = true
-    text.Outline = true
-    text.Transparency = 1
-    text.Color = Color3.fromRGB(255, 255, 255)
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "ESPText"
+    billboard.Adornee = model.Head
+    billboard.Size = UDim2.new(0, 200, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 2, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Enabled = false
+    billboard.Parent = model.Head
 
-    ESPMobsObjects[model] = {Highlight = highlight, Text = text}
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.TextStrokeTransparency = 0.5
+    textLabel.TextSize = 14
+    textLabel.Text = ""
+    textLabel.Parent = billboard
+
+    ESPMobsObjects[model] = {Highlight = highlight, Billboard = billboard, TextLabel = textLabel}
 
     model.AncestryChanged:Connect(function()
         if not model:IsDescendantOf(workspace) then
             if ESPMobsObjects[model] then
-                ESPMobsObjects[model].Text:Remove()
+                if ESPMobsObjects[model].Billboard then
+                    ESPMobsObjects[model].Billboard:Destroy()
+                end
                 if ESPMobsObjects[model].Highlight then
                     ESPMobsObjects[model].Highlight:Destroy()
                 end
@@ -354,20 +366,32 @@ local function CreateESPForPlayer(model)
     highlight.Enabled = false
     highlight.Parent = model
 
-    local text = Drawing.new("Text")
-    text.Visible = false
-    text.Size = 14
-    text.Center = true
-    text.Outline = true
-    text.Transparency = 1
-    text.Color = Color3.fromRGB(255, 255, 255)
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "ESPText"
+    billboard.Adornee = model.Head
+    billboard.Size = UDim2.new(0, 200, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 2, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Enabled = false
+    billboard.Parent = model.Head
 
-    ESPPlayersObjects[model] = {Highlight = highlight, Text = text}
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.TextStrokeTransparency = 0.5
+    textLabel.TextSize = 14
+    textLabel.Text = ""
+    textLabel.Parent = billboard
+
+    ESPPlayersObjects[model] = {Highlight = highlight, Billboard = billboard, TextLabel = textLabel}
 
     model.AncestryChanged:Connect(function()
         if not model:IsDescendantOf(workspace) then
             if ESPPlayersObjects[model] then
-                ESPPlayersObjects[model].Text:Remove()
+                if ESPPlayersObjects[model].Billboard then
+                    ESPPlayersObjects[model].Billboard:Destroy()
+                end
                 if ESPPlayersObjects[model].Highlight then
                     ESPPlayersObjects[model].Highlight:Destroy()
                 end
@@ -381,7 +405,7 @@ local function toggleESPMobs()
     if not espMobsEnabled then
         for _, espObject in pairs(ESPMobsObjects) do
             espObject.Highlight.Enabled = false
-            espObject.Text.Visible = false
+            espObject.Billboard.Enabled = false
         end
     end
 end
@@ -390,7 +414,7 @@ local function toggleESPPlayers()
     if not espPlayersEnabled then
         for _, espObject in pairs(ESPPlayersObjects) do
             espObject.Highlight.Enabled = false
-            espObject.Text.Visible = false
+            espObject.Billboard.Enabled = false
         end
     end
 end
@@ -419,26 +443,24 @@ RunService.RenderStepped:Connect(function()
             local root = model:FindFirstChild("HumanoidRootPart")
             local head = model:FindFirstChild("Head")
             if humanoid and root and head and humanoid.Health > 0 then
-                local rootPos, onScreen = Camera:WorldToViewportPoint(root.Position)
-                local headPos = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1, 0))
+                local _, onScreen = Camera:WorldToViewportPoint(root.Position)
                 if onScreen then
                     local dist = (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and (LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude) or math.huge
                     if dist <= 5000 then
                         espObject.Highlight.Enabled = true
-                        espObject.Text.Text = model.Name .. " [" .. math.floor(dist) .. "]"
-                        espObject.Text.Position = Vector2.new(headPos.X, headPos.Y - espObject.Text.TextBounds.Y)
-                        espObject.Text.Visible = true
+                        espObject.Billboard.Enabled = true
+                        espObject.TextLabel.Text = model.Name .. " [" .. math.floor(dist) .. "]"
                     else
                         espObject.Highlight.Enabled = false
-                        espObject.Text.Visible = false
+                        espObject.Billboard.Enabled = false
                     end
                 else
                     espObject.Highlight.Enabled = false
-                    espObject.Text.Visible = false
+                    espObject.Billboard.Enabled = false
                 end
             else
                 espObject.Highlight.Enabled = false
-                espObject.Text.Visible = false
+                espObject.Billboard.Enabled = false
             end
         end
     end
@@ -450,26 +472,24 @@ RunService.RenderStepped:Connect(function()
             local root = model:FindFirstChild("HumanoidRootPart")
             local head = model:FindFirstChild("Head")
             if humanoid and root and head and humanoid.Health > 0 then
-                local rootPos, onScreen = Camera:WorldToViewportPoint(root.Position)
-                local headPos = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1, 0))
+                local _, onScreen = Camera:WorldToViewportPoint(root.Position)
                 if onScreen then
                     local dist = (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and (LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude) or math.huge
                     if dist <= 5000 then
                         espObject.Highlight.Enabled = true
-                        espObject.Text.Text = model.Name .. " [" .. math.floor(dist) .. "]"
-                        espObject.Text.Position = Vector2.new(headPos.X, headPos.Y - espObject.Text.TextBounds.Y)
-                        espObject.Text.Visible = true
+                        espObject.Billboard.Enabled = true
+                        espObject.TextLabel.Text = model.Name .. " [" .. math.floor(dist) .. "]"
                     else
                         espObject.Highlight.Enabled = false
-                        espObject.Text.Visible = false
+                        espObject.Billboard.Enabled = false
                     end
                 else
                     espObject.Highlight.Enabled = false
-                    espObject.Text.Visible = false
+                    espObject.Billboard.Enabled = false
                 end
             else
                 espObject.Highlight.Enabled = false
-                espObject.Text.Visible = false
+                espObject.Billboard.Enabled = false
             end
         end
     end
