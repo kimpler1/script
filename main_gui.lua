@@ -2,6 +2,13 @@
 local funcs_script = game:HttpGet("https://raw.githubusercontent.com/kimpler1/script/main/functions.lua")
 local funcs = loadstring(funcs_script)()
 
+-- Объявление enabled флагов для слайдеров (чтобы избежать ошибок)
+local aimbotEnabled = false
+local godmodeEnabled = false
+local autoFarmBondsEnabled = false
+local speedHackEnabled = false
+local noClipEnabled = false
+
 -- Код GUI
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -355,18 +362,18 @@ for i, tabName in ipairs(tabs) do
         sliders.ESPMobsSlider.Visible = false
         sliders.ESPPlayersSlider.Visible = false
     elseif tabName == "Combat" then
-        sliders.AimbotSlider = createSlider(ContentFrame, "Aimbot", funcs.toggleAimbot, false, false)
-        sliders.GodmodeSlider = createSlider(ContentFrame, "Godmode", funcs.toggleGodmode, false, false)
+        sliders.AimbotSlider = createSlider(ContentFrame, "Aimbot", funcs.toggleAimbot, aimbotEnabled, false)
+        sliders.GodmodeSlider = createSlider(ContentFrame, "Godmode", funcs.toggleGodmode, godmodeEnabled, false)
         sliders.AimbotSlider.Visible = false
         sliders.GodmodeSlider.Visible = false
     elseif tabName == "Farming" then
         sliders.InfiniteBondsSlider = createSlider(ContentFrame, "Infinite Bonds", funcs.setInfiniteBonds, false, false)
-        sliders.AutoFarmBondsSlider = createSlider(ContentFrame, "Auto Farm Bonds", funcs.toggleAutoFarmBonds, false, false)
+        sliders.AutoFarmBondsSlider = createSlider(ContentFrame, "Auto Farm Bonds", funcs.toggleAutoFarmBonds, autoFarmBondsEnabled, false)
         sliders.InfiniteBondsSlider.Visible = false
         sliders.AutoFarmBondsSlider.Visible = false
     elseif tabName == "Movement" then
-        sliders.SpeedHackSlider = createSlider(ContentFrame, "Speed Hack", funcs.toggleSpeedHack, false, true)
-        sliders.NoClipSlider = createSlider(ContentFrame, "NoClip", funcs.toggleNoClip, false, false)
+        sliders.SpeedHackSlider = createSlider(ContentFrame, "Speed Hack", funcs.toggleSpeedHack, speedHackEnabled, true)
+        sliders.NoClipSlider = createSlider(ContentFrame, "NoClip", funcs.toggleNoClip, noClipEnabled, false)
         sliders.TPToEndSlider = createSlider(ContentFrame, "TP to End", funcs.tpToEnd, false, false)
         sliders.SpeedHackSlider.Visible = false
         sliders.NoClipSlider.Visible = false
