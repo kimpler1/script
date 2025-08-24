@@ -1,7 +1,3 @@
--- Загрузка модуля функций
-local funcs_script = game:HttpGet("https://raw.githubusercontent.com/kimpler1/script/main/functions.lua")  -- Замени на свою ссылку на functions.lua
-local funcs = loadstring(funcs_script)()
-
 -- Теперь используй funcs.toggleESPMobs и т.д.
 
 local Players = game:GetService("Players")
@@ -134,7 +130,7 @@ MaximizeButton.Position = UDim2.new(0, 0, 0, 0)
 MaximizeButton.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
 MaximizeButton.BorderSizePixel = 0
 MaximizeButton.Text = "▼"
-MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 0)
+MaximizeButton.TextColor3 = Color3.fromRGB(255, 255, 0)
 MaximizeButton.TextScaled = true
 MaximizeButton.Parent = MinimizedFrame
 local MaximizeCorner = Instance.new("UICorner")
