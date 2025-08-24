@@ -328,7 +328,6 @@ for i, tabName in ipairs(tabs) do
             slider.Visible = false
         end
         if tabName == "Main" then
-            sliders.NPCLockSlider.Visible = true
             sliders.ESPSlider.Visible = true
         elseif tabName == "Combat" then
             sliders.AimbotSlider.Visible = true
@@ -345,9 +344,7 @@ for i, tabName in ipairs(tabs) do
         end
     end)
     if tabName == "Main" then
-        sliders.NPCLockSlider = createSlider(ContentFrame, "NPC Lock", toggleNPCLock, npcLockEnabled, false)
         sliders.ESPSlider = createSlider(ContentFrame, "ESP (Wallhack)", toggleESP, espEnabled, false)
-        sliders.NPCLockSlider.Visible = false
         sliders.ESPSlider.Visible = false
     elseif tabName == "Combat" then
         sliders.AimbotSlider = createSlider(ContentFrame, "Aimbot", toggleAimbot, aimbotEnabled, false)
@@ -375,7 +372,6 @@ end
 if #tabButtons > 0 then
     currentTab = tabButtons[1]
     tabButtons[1].BackgroundColor3 = Color3.fromRGB(75, 0, 130)
-    sliders.NPCLockSlider.Visible = true
     sliders.ESPSlider.Visible = true
 end
 game:GetService("StarterGui"):SetCore("SendNotification", {
