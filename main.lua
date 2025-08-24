@@ -300,12 +300,17 @@ local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasS
     return SliderContainer
 end
 local Camera = workspace.CurrentCamera
-local espEnabled = false
-local ESPObjects = {}
-local function isNPC(model)
+local espMobsEnabled = false
+local espPlayersEnabled = false
+local ESPMobsObjects = {}
+local ESPPlayersObjects = {}
+local function isMob(model)
     return model:IsA("Model") and model:FindFirstChild("Humanoid") and model:FindFirstChild("HumanoidRootPart") and model:FindFirstChild("Head") and not Players:GetPlayerFromCharacter(model)
 end
-local function CreateESPForNPC(model)
+local function isPlayer(model)
+    return model:IsA("Model") and model:FindFirstChild("Humanoid") and model:FindFirstChild("HumanoidRootPart") and model:FindFirstChild("Head") and Players:GetPlayerFromCharacter(model)
+end
+local function CreateESPForMob(model)
     local highlight = Instance.new("Highlight")
     highlight.Name = "ESPHighlight"
     highlight.Adornee = model
@@ -324,58 +329,109 @@ local function CreateESPForNPC(model)
     text.Transparency = 1
     text.Color = Color3.fromRGB(255, 255, 255)
 
-    ESPObjects[model] = {Highlight = highlight, Text = text}
+    ESPMobsObjects[model] = {Highlight = highlight, Text = text}
 
     model.AncestryChanged:Connect(function()
         if not model:IsDescendantOf(workspace) then
-            if ESPObjects[model] then
-                ESPObjects[model].Text:Remove()
-                if ESPObjects[model].Highlight then
-                    ESPObjects[model].Highlight:Destroy()
+            if ESPMobsObjects[model] then
+                ESPMobsObjects[model].Text:Remove()
+                if ESPMobsObjects[model].Highlight then
+                    ESPMobsObjects[model].Highlight:Destroy()
                 end
-                ESPObjects[model] = nil
+                ESPMobsObjects[model] = nil
             end
         end
     end)
 end
-local function toggleESP()
-    espEnabled = not espEnabled
-    if not espEnabled then
-        for _, espObject in pairs(ESPObjects) do
+local function CreateESPForPlayer(model)
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "ESPHighlight"
+    highlight.Adornee = model
+    highlight.FillTransparency = 1
+    highlight.OutlineColor = Color3.fromRGB(0, 255, 0)  -- Green for players
+    highlight.OutlineTransparency = 0
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.Enabled = false
+    highlight.Parent = model
+
+    local text = Drawing.new("Text")
+    text.Visible = false
+    text.Size = 14
+    text.Center = true
+    text.Outline = true
+    text.Transparency = 1
+    text.Color = Color3.fromRGB(255, 255, 255)
+
+    ESPPlayersObjects[model] = {Highlight = highlight, Text = text}
+
+    model.AncestryChanged:Connect(function()
+        if not model:IsDescendantOf(workspace) then
+            if ESPPlayersObjects[model] then
+                ESPPlayersObjects[model].Text:Remove()
+                if ESPPlayersObjects[model].Highlight then
+                    ESPPlayersObjects[model].Highlight:Destroy()
+                end
+                ESPPlayersObjects[model] = nil
+            end
+        end
+    end)
+end
+local function toggleESPMobs()
+    espMobsEnabled = not espMobsEnabled
+    if not espMobsEnabled then
+        for _, espObject in pairs(ESPMobsObjects) do
             espObject.Highlight.Enabled = false
             espObject.Text.Visible = false
         end
     end
 end
--- Scan for existing NPCs
-for _, model in ipairs(workspace:GetDescendants()) do
-    if isNPC(model) then
-        CreateESPForNPC(model)
+local function toggleESPPlayers()
+    espPlayersEnabled = not espPlayersEnabled
+    if not espPlayersEnabled then
+        for _, espObject in pairs(ESPPlayersObjects) do
+            espObject.Highlight.Enabled = false
+            espObject.Text.Visible = false
+        end
     end
 end
--- Listen for new NPCs
+-- Scan for existing mobs and players
+for _, model in ipairs(workspace:GetDescendants()) do
+    if isMob(model) then
+        CreateESPForMob(model)
+    elseif isPlayer(model) then
+        CreateESPForPlayer(model)
+    end
+end
+-- Listen for new models
 workspace.DescendantAdded:Connect(function(desc)
-    if isNPC(desc) then
-        CreateESPForNPC(desc)
+    if isMob(desc) then
+        CreateESPForMob(desc)
+    elseif isPlayer(desc) then
+        CreateESPForPlayer(desc)
     end
 end)
 -- Update ESP on each frame
 RunService.RenderStepped:Connect(function()
-    if not espEnabled then return end
-    for model, espObject in pairs(ESPObjects) do
-        local humanoid = model:FindFirstChild("Humanoid")
-        local root = model:FindFirstChild("HumanoidRootPart")
-        local head = model:FindFirstChild("Head")
-        if humanoid and root and head and humanoid.Health > 0 then
-            local rootPos, onScreen = Camera:WorldToViewportPoint(root.Position)
-            local headPos = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1, 0))
-            if onScreen then
-                local dist = (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and (LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude) or math.huge
-                if dist <= 5000 then
-                    espObject.Highlight.Enabled = true
-                    espObject.Text.Text = model.Name .. " [" .. math.floor(dist) .. "]"
-                    espObject.Text.Position = Vector2.new(headPos.X, headPos.Y - espObject.Text.TextBounds.Y)
-                    espObject.Text.Visible = true
+    -- Update Mobs ESP
+    if espMobsEnabled then
+        for model, espObject in pairs(ESPMobsObjects) do
+            local humanoid = model:FindFirstChild("Humanoid")
+            local root = model:FindFirstChild("HumanoidRootPart")
+            local head = model:FindFirstChild("Head")
+            if humanoid and root and head and humanoid.Health > 0 then
+                local rootPos, onScreen = Camera:WorldToViewportPoint(root.Position)
+                local headPos = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1, 0))
+                if onScreen then
+                    local dist = (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and (LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude) or math.huge
+                    if dist <= 5000 then
+                        espObject.Highlight.Enabled = true
+                        espObject.Text.Text = model.Name .. " [" .. math.floor(dist) .. "]"
+                        espObject.Text.Position = Vector2.new(headPos.X, headPos.Y - espObject.Text.TextBounds.Y)
+                        espObject.Text.Visible = true
+                    else
+                        espObject.Highlight.Enabled = false
+                        espObject.Text.Visible = false
+                    end
                 else
                     espObject.Highlight.Enabled = false
                     espObject.Text.Visible = false
@@ -384,9 +440,37 @@ RunService.RenderStepped:Connect(function()
                 espObject.Highlight.Enabled = false
                 espObject.Text.Visible = false
             end
-        else
-            espObject.Highlight.Enabled = false
-            espObject.Text.Visible = false
+        end
+    end
+
+    -- Update Players ESP
+    if espPlayersEnabled then
+        for model, espObject in pairs(ESPPlayersObjects) do
+            local humanoid = model:FindFirstChild("Humanoid")
+            local root = model:FindFirstChild("HumanoidRootPart")
+            local head = model:FindFirstChild("Head")
+            if humanoid and root and head and humanoid.Health > 0 then
+                local rootPos, onScreen = Camera:WorldToViewportPoint(root.Position)
+                local headPos = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1, 0))
+                if onScreen then
+                    local dist = (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and (LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude) or math.huge
+                    if dist <= 5000 then
+                        espObject.Highlight.Enabled = true
+                        espObject.Text.Text = model.Name .. " [" .. math.floor(dist) .. "]"
+                        espObject.Text.Position = Vector2.new(headPos.X, headPos.Y - espObject.Text.TextBounds.Y)
+                        espObject.Text.Visible = true
+                    else
+                        espObject.Highlight.Enabled = false
+                        espObject.Text.Visible = false
+                    end
+                else
+                    espObject.Highlight.Enabled = false
+                    espObject.Text.Visible = false
+                end
+            else
+                espObject.Highlight.Enabled = false
+                espObject.Text.Visible = false
+            end
         end
     end
 end)
@@ -419,7 +503,8 @@ for i, tabName in ipairs(tabs) do
             slider.Visible = false
         end
         if tabName == "Main" then
-            sliders.ESPSlider.Visible = true
+            sliders.ESPMobsSlider.Visible = true
+            sliders.ESPPlayersSlider.Visible = true
         elseif tabName == "Combat" then
             sliders.AimbotSlider.Visible = true
             sliders.GodmodeSlider.Visible = true
@@ -435,8 +520,10 @@ for i, tabName in ipairs(tabs) do
         end
     end)
     if tabName == "Main" then
-        sliders.ESPSlider = createSlider(ContentFrame, "ESP (Wallhack)", toggleESP, false, false)
-        sliders.ESPSlider.Visible = false
+        sliders.ESPMobsSlider = createSlider(ContentFrame, "ESP mobs", toggleESPMobs, false, false)
+        sliders.ESPPlayersSlider = createSlider(ContentFrame, "ESP players", toggleESPPlayers, false, false)
+        sliders.ESPMobsSlider.Visible = false
+        sliders.ESPPlayersSlider.Visible = false
     elseif tabName == "Combat" then
         sliders.AimbotSlider = createSlider(ContentFrame, "Aimbot", toggleAimbot, aimbotEnabled, false)
         sliders.GodmodeSlider = createSlider(ContentFrame, "Godmode", toggleGodmode, godmodeEnabled, false)
@@ -463,7 +550,8 @@ end
 if #tabButtons > 0 then
     currentTab = tabButtons[1]
     tabButtons[1].BackgroundColor3 = Color3.fromRGB(75, 0, 130)
-    sliders.ESPSlider.Visible = true
+    sliders.ESPMobsSlider.Visible = true
+    sliders.ESPPlayersSlider.Visible = true
 end
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Скрипт Dead Rails загружен",
