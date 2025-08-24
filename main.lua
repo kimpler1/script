@@ -164,58 +164,6 @@ end)
 CloseButtonMinimized.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
-local espEnabled = false
-local espGuis = {}
-local function createESP(player)
-    if player == LocalPlayer then return end
-    local character = player.Character or player.CharacterAdded:Wait()
-    local head = character:WaitForChild("Head")
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "ESP"
-    billboard.Adornee = head
-    billboard.Size = UDim2.new(0, 200, 0, 50)
-    billboard.StudOffset = Vector3.new(0, 3, 0)
-    billboard.AlwaysOnTop = true
-    local text = Instance.new("TextLabel")
-    text.Size = UDim2.new(1, 0, 1, 0)
-    text.BackgroundTransparency = 1
-    text.TextColor3 = Color3.fromRGB(255, 0, 0)
-    text.Text = player.Name
-    text.TextSize = 14
-    text.Parent = billboard
-    billboard.Parent = LocalPlayer.PlayerGui
-    espGuis[player] = billboard
-    -- For health
-    local humanoid = character:WaitForChild("Humanoid")
-    local function updateHealth()
-        text.Text = player.Name .. " | Health: " .. math.floor(humanoid.Health)
-    end
-    updateHealth()
-    humanoid.HealthChanged:Connect(updateHealth)
-end
-local function toggleESP()
-    espEnabled = not espEnabled
-    if espEnabled then
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player.Character then
-                createESP(player)
-            end
-            player.CharacterAdded:Connect(function()
-                createESP(player)
-            end)
-        end
-        Players.PlayerAdded:Connect(function(player)
-            player.CharacterAdded:Connect(function()
-                createESP(player)
-            end)
-        end)
-    else
-        for _, gui in pairs(espGuis) do
-            gui:Destroy()
-        end
-        espGuis = {}
-    end
-end
 local function createSlider(parent, labelText, toggleFunction, enabledFlag, hasSpeedSlider)
     local containerHeight = hasSpeedSlider and 51 or 34
     local SliderContainer = Instance.new("Frame")
@@ -380,6 +328,7 @@ for i, tabName in ipairs(tabs) do
             slider.Visible = false
         end
         if tabName == "Main" then
+            sliders.NPCLockSlider.Visible = true
             sliders.ESPSlider.Visible = true
         elseif tabName == "Combat" then
             sliders.AimbotSlider.Visible = true
@@ -396,7 +345,9 @@ for i, tabName in ipairs(tabs) do
         end
     end)
     if tabName == "Main" then
-        sliders.ESPSlider = createSlider(ContentFrame, "ESP (Wallhack)", toggleESP, false, false)
+        sliders.NPCLockSlider = createSlider(ContentFrame, "NPC Lock", toggleNPCLock, npcLockEnabled, false)
+        sliders.ESPSlider = createSlider(ContentFrame, "ESP (Wallhack)", toggleESP, espEnabled, false)
+        sliders.NPCLockSlider.Visible = false
         sliders.ESPSlider.Visible = false
     elseif tabName == "Combat" then
         sliders.AimbotSlider = createSlider(ContentFrame, "Aimbot", toggleAimbot, aimbotEnabled, false)
@@ -424,6 +375,7 @@ end
 if #tabButtons > 0 then
     currentTab = tabButtons[1]
     tabButtons[1].BackgroundColor3 = Color3.fromRGB(75, 0, 130)
+    sliders.NPCLockSlider.Visible = true
     sliders.ESPSlider.Visible = true
 end
 game:GetService("StarterGui"):SetCore("SendNotification", {
