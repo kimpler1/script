@@ -1,4 +1,5 @@
--- Загрузка модуля функций
+-- main_gui.lua (основная часть с GUI, инжектить эту)
+-- Загрузка модуля функций (замени на свою ссылку, если нужно)
 local funcs_script = game:HttpGet("https://raw.githubusercontent.com/kimpler1/script/main/functions.lua")
 local funcs = loadstring(funcs_script)()
 
