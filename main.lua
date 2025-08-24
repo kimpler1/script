@@ -306,26 +306,33 @@ local function isNPC(model)
     return model:IsA("Model") and model:FindFirstChild("Humanoid") and model:FindFirstChild("HumanoidRootPart") and model:FindFirstChild("Head") and not Players:GetPlayerFromCharacter(model)
 end
 local function CreateESPForNPC(model)
-    local espObject = {}
-    espObject.Box = Drawing.new("Square")
-    espObject.Box.Visible = false
-    espObject.Box.Thickness = 2
-    espObject.Box.Transparency = 0.5
-    espObject.Box.Filled = false
-    espObject.Box.Color = Color3.fromRGB(255, 0, 0) -- Red for enemies
-    espObject.Text = Drawing.new("Text")
-    espObject.Text.Visible = false
-    espObject.Text.Size = 14
-    espObject.Text.Center = true
-    espObject.Text.Outline = true
-    espObject.Text.Transparency = 0
-    espObject.Text.Color = Color3.fromRGB(255, 255, 255)
-    ESPObjects[model] = espObject
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "ESPHighlight"
+    highlight.Adornee = model
+    highlight.FillTransparency = 1
+    highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+    highlight.OutlineTransparency = 0
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.Enabled = false
+    highlight.Parent = model
+
+    local text = Drawing.new("Text")
+    text.Visible = false
+    text.Size = 14
+    text.Center = true
+    text.Outline = true
+    text.Transparency = 1
+    text.Color = Color3.fromRGB(255, 255, 255)
+
+    ESPObjects[model] = {Highlight = highlight, Text = text}
+
     model.AncestryChanged:Connect(function()
         if not model:IsDescendantOf(workspace) then
             if ESPObjects[model] then
-                ESPObjects[model].Box:Remove()
                 ESPObjects[model].Text:Remove()
+                if ESPObjects[model].Highlight then
+                    ESPObjects[model].Highlight:Destroy()
+                end
                 ESPObjects[model] = nil
             end
         end
@@ -335,7 +342,7 @@ local function toggleESP()
     espEnabled = not espEnabled
     if not espEnabled then
         for _, espObject in pairs(ESPObjects) do
-            espObject.Box.Visible = false
+            espObject.Highlight.Enabled = false
             espObject.Text.Visible = false
         end
     end
@@ -361,29 +368,24 @@ RunService.RenderStepped:Connect(function()
         local head = model:FindFirstChild("Head")
         if humanoid and root and head and humanoid.Health > 0 then
             local rootPos, onScreen = Camera:WorldToViewportPoint(root.Position)
+            local headPos = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1, 0))
             if onScreen then
-                local headPos = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1, 0))
-                local legPos = Camera:WorldToViewportPoint(root.Position - Vector3.new(0, 3, 0))
                 local dist = (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and (LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude) or math.huge
                 if dist <= 5000 then
-                    local height = math.abs(headPos.Y - legPos.Y)
-                    local width = height / 2
-                    espObject.Box.Size = Vector2.new(width, height)
-                    espObject.Box.Position = Vector2.new(rootPos.X - width / 2, rootPos.Y - height / 2)
-                    espObject.Box.Visible = true
+                    espObject.Highlight.Enabled = true
                     espObject.Text.Text = model.Name .. " [" .. math.floor(dist) .. "]"
-                    espObject.Text.Position = Vector2.new(rootPos.X, rootPos.Y - height / 2 - espObject.Text.TextBounds.Y)
+                    espObject.Text.Position = Vector2.new(headPos.X, headPos.Y - espObject.Text.TextBounds.Y)
                     espObject.Text.Visible = true
                 else
-                    espObject.Box.Visible = false
+                    espObject.Highlight.Enabled = false
                     espObject.Text.Visible = false
                 end
             else
-                espObject.Box.Visible = false
+                espObject.Highlight.Enabled = false
                 espObject.Text.Visible = false
             end
         else
-            espObject.Box.Visible = false
+            espObject.Highlight.Enabled = false
             espObject.Text.Visible = false
         end
     end
