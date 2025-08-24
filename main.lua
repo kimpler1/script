@@ -335,7 +335,7 @@ local function CreateESPForMob(model)
     textLabel.BackgroundTransparency = 1
     textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     textLabel.TextStrokeTransparency = 0.5
-    textLabel.TextSize = 14
+    textLabel.TextSize = 10
     textLabel.Text = ""
     textLabel.Parent = billboard
 
@@ -380,7 +380,7 @@ local function CreateESPForPlayer(model)
     textLabel.BackgroundTransparency = 1
     textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     textLabel.TextStrokeTransparency = 0.5
-    textLabel.TextSize = 14
+    textLabel.TextSize = 10
     textLabel.Text = ""
     textLabel.Parent = billboard
 
