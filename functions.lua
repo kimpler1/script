@@ -117,6 +117,28 @@ local function toggleESPPlayers()
         end
     end
 end
+-- Заглушки для других функций (замени на реальный код)
+local function toggleAimbot()
+    print("Aimbot toggled - implement me")
+end
+local function toggleGodmode()
+    print("Godmode toggled - implement me")
+end
+local function setInfiniteBonds()
+    print("Infinite Bonds set - implement me")
+end
+local function toggleAutoFarmBonds()
+    print("Auto Farm Bonds toggled - implement me")
+end
+local function toggleSpeedHack()
+    print("Speed Hack toggled - implement me")
+end
+local function toggleNoClip()
+    print("NoClip toggled - implement me")
+end
+local function tpToEnd()
+    print("TP to End - implement me")
+end
 -- Scan for existing mobs and players
 for _, model in ipairs(workspace:GetDescendants()) do
     if isMob(model) then
@@ -194,9 +216,15 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Экспорт функций для использования в GUI
+-- Экспорт функций
 return {
     toggleESPMobs = toggleESPMobs,
     toggleESPPlayers = toggleESPPlayers,
-    -- Добавьте другие функции здесь, если нужно
+    toggleAimbot = toggleAimbot,
+    toggleGodmode = toggleGodmode,
+    setInfiniteBonds = setInfiniteBonds,
+    toggleAutoFarmBonds = toggleAutoFarmBonds,
+    toggleSpeedHack = toggleSpeedHack,
+    toggleNoClip = toggleNoClip,
+    tpToEnd = tpToEnd
 }
