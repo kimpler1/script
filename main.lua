@@ -1,162 +1,118 @@
---dead rails wall hack aimbot.
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-player.CameraMode = Enum.CameraMode.Classic
-local runService = game:GetService("RunService")
-local StarterGui = game:GetService("StarterGui")
-local camera = workspace.CurrentCamera
-StarterGui:SetCore("SendNotification", {
-    Title = "Code by GioBolqvi", -- dont skid 🙏💔
-    Text = "on Roblox",
-    Duration = 3
-})
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "NPC_Lock_GUI"
-screenGui.Parent = game:GetService("CoreGui")
-local button = Instance.new("TextButton")
-button.Name = "NPC Lock: ON/OFF"
-button.Size = UDim2.new(0, 150, 0, 50)
-button.Position = UDim2.new(0.5, -75, 0.9, -25)
-button.BackgroundColor3 = Color3.new(0, 0, 0)
-button.TextColor3 = Color3.new(1, 1, 1)
-button.Text = "NPC Lock: OFF"
-button.Font = Enum.Font.Fantasy
-button.TextScaled = true
-button.TextSize = 20
-button.Parent = screenGui
-local uicorner = Instance.new("UICorner")
-uicorner.CornerRadius = UDim.new(0, 12)
-uicorner.Parent = button
-local dragging = false
-local dragInput, dragStart, startPos
-local function update(input)
-    local delta = input.Position - dragStart
-    button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+local fov = 136
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Cam = workspace.CurrentCamera
+local Player = game:GetService("Players").LocalPlayer
+local FOVring = Drawing.new("Circle")
+FOVring.Visible = false
+FOVring.Thickness = 2
+FOVring.Color = Color3.fromRGB(128, 0, 128)
+FOVring.Filled = false
+FOVring.Radius = fov
+FOVring.Position = Cam.ViewportSize / 2
+local isAiming = false
+local validNPCs = {}
+local raycastParams = RaycastParams.new()
+raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.CoreGui
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 120, 0, 40)
+ToggleButton.Position = UDim2.new(0, 10, 0, 10)
+ToggleButton.Text = "AIMBOT: OFF"
+ToggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 50, 50)
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.TextSize = 14
+ToggleButton.Parent = ScreenGui
+local function isNPC(obj)
+    return obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj.Humanoid.Health > 0 and obj:FindFirstChild("Head") and obj:FindFirstChild("HumanoidRootPart") and not game:GetService("Players"):GetPlayerFromCharacter(obj)
 end
-button.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = button.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
+local function updateNPCs()
+    local tempTable = {}
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if isNPC(obj) then
+            tempTable[obj] = true
+        end
     end
-end)
-button.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
+    for i = #validNPCs, 1, -1 do
+        if not tempTable[validNPCs[i]] then
+            table.remove(validNPCs, i)
+        end
     end
-end)
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if dragging and input == dragInput then
-        update(input)
-    end
-end)
-local npcLock = false
-local lastTarget = nil
-local toggleLoop
-local function addPlayerHighlight()
-    if player.Character then
-        local highlight = player.Character:FindFirstChild("PlayerHighlightESP")
-        if not highlight then
-            highlight = Instance.new("Highlight")
-            highlight.Name = "PlayerHighlightESP"
-            highlight.FillColor = Color3.new(1, 1, 1)
-            highlight.OutlineColor = Color3.new(1, 1, 1)
-            highlight.FillTransparency = 0.5
-            highlight.OutlineTransparency = 0
-            highlight.Parent = player.Character
+    for obj in pairs(tempTable) do
+        if not table.find(validNPCs, obj) then
+            table.insert(validNPCs, obj)
         end
     end
 end
-local function removePlayerHighlight()
-    if player.Character and player.Character:FindFirstChild("PlayerHighlightESP") then
-        player.Character.PlayerHighlightESP:Destroy()
+local function handleDescendantAdded(obj)
+    if isNPC(obj) then
+        table.insert(validNPCs, obj)
     end
 end
-local function getClosestNPC()
+local function handleDescendantRemoving(obj)
+    for i, npc in ipairs(validNPCs) do
+        if npc == obj then
+            table.remove(validNPCs, i)
+            break
+        end
+    end
+end
+workspace.DescendantAdded:Connect(handleDescendantAdded)
+workspace.DescendantRemoving:Connect(handleDescendantRemoving)
+RunService.RenderStepped:Connect(function()
+    updateNPCs()
+end)
+local function getClosestNPCInFOV()
     local closestNPC = nil
-    local closestDistance = math.huge
-    for _, object in ipairs(workspace:GetDescendants()) do
-        if object:IsA("Model") then
-            local humanoid = object:FindFirstChild("Humanoid") or object:FindFirstChildWhichIsA("Humanoid")
-            local hrp = object:FindFirstChild("HumanoidRootPart") or object.PrimaryPart
-            if humanoid and hrp and humanoid.Health > 0 and object.Name ~= "Horse" then
-                local isPlayer = false
-                for _, pl in ipairs(Players:GetPlayers()) do
-                    if pl.Character == object then
-                        isPlayer = true
-                        break
-                    end
-                end
-                if not isPlayer then
-                    local distance = (hrp.Position - player.Character.HumanoidRootPart.Position).Magnitude
-                    if distance < closestDistance then
-                        closestDistance = distance
-                        closestNPC = object
-                    end
+    local shortestDistance = fov
+    for _, npc in ipairs(validNPCs) do
+        local head = npc:FindFirstChild("Head")
+        if head then
+            local screenPos, onScreen = Cam:WorldToViewportPoint(head.Position)
+            if onScreen then
+                local distance = (Vector2.new(screenPos.X, screenPos.Y) - Cam.ViewportSize / 2).Magnitude
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    closestNPC = npc
                 end
             end
         end
     end
     return closestNPC
 end
-local function addHighlight(target)
-    if target then
-        local highlight = target:FindFirstChild("NPCHighlightESP")
-        if not highlight then
-            highlight = Instance.new("Highlight")
-            highlight.Name = "NPCHighlightESP"
-            highlight.FillColor = Color3.new(1, 0, 0)
-            highlight.OutlineColor = Color3.new(1, 0, 0)
-            highlight.FillTransparency = 0.5
-            highlight.OutlineTransparency = 0
-            highlight.Parent = target
-        end
+local function isVisible(targetPosition)
+    raycastParams.FilterDescendantsInstances = {Player.Character}
+    local raycastResult = workspace:Raycast(Cam.CFrame.Position, (targetPosition - Cam.CFrame.Position).Unit * 500, raycastParams)
+    return raycastResult == nil or raycastResult.Position == targetPosition
+end
+local function aimAtNPC(npc)
+    local head = npc:FindFirstChild("Head")
+    if head and isVisible(head.Position) then
+        Cam.CFrame = CFrame.lookAt(Cam.CFrame.Position, head.Position)
     end
 end
-local function removeHighlight(target)
-    if target and target:FindFirstChild("NPCHighlightESP") then
-        target.NPCHighlightESP:Destroy()
-    end
-end
-local function updateCamera()
-    local target = getClosestNPC()
-    if target then
-        local hrp = target:FindFirstChild("HumanoidRootPart") or target.PrimaryPart
-        if hrp then
-            camera.CFrame = CFrame.new(camera.CFrame.Position, hrp.Position)
-            if lastTarget and lastTarget ~= target then
-                removeHighlight(lastTarget)
+local connection
+ToggleButton.MouseButton1Click:Connect(function()
+    isAiming = not isAiming
+    if isAiming then
+        ToggleButton.Text = "AIMBOT: ON"
+        ToggleButton.TextColor3 = Color3.fromRGB(50, 255, 50)
+        FOVring.Visible = true
+        connection = RunService.RenderStepped:Connect(function()
+            FOVring.Position = Cam.ViewportSize / 2
+            local closestNPC = getClosestNPCInFOV()
+            if closestNPC then
+                aimAtNPC(closestNPC)
             end
-            addHighlight(target)
-            lastTarget = target
-        end
+        end)
     else
-        if lastTarget then
-            removeHighlight(lastTarget)
-            lastTarget = nil
-        end
-    end
-end
-button.MouseButton1Click:Connect(function()
-    npcLock = not npcLock
-    if npcLock then
-        button.Text = "NPC Lock: ON"
-        addPlayerHighlight()
-        toggleLoop = runService.RenderStepped:Connect(updateCamera)
-    else
-        button.Text = "NPC Lock: OFF"
-        removePlayerHighlight()
-        if toggleLoop then
-            toggleLoop:Disconnect()
-        end
-        if lastTarget then
-            removeHighlight(lastTarget)
-            lastTarget = nil
+        ToggleButton.Text = "AIMBOT: OFF"
+        ToggleButton.TextColor3 = Color3.fromRGB(255, 50, 50)
+        FOVring.Visible = false
+        if connection then
+            connection:Disconnect()
         end
     end
 end)
