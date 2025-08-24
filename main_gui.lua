@@ -1,4 +1,8 @@
--- main_gui.lua: Этот файл содержит только код GUI и ссылки на функции.
+-- Загрузка модуля функций
+local funcs_script = game:HttpGet("https://raw.githubusercontent.com/kimpler1/script/main/functions.lua")  -- Замени на свою ссылку на functions.lua
+local funcs = loadstring(funcs_script)()
+
+-- Теперь используй funcs.toggleESPMobs и т.д.
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -130,7 +134,7 @@ MaximizeButton.Position = UDim2.new(0, 0, 0, 0)
 MaximizeButton.BackgroundColor3 = Color3.fromRGB(75, 0, 130)
 MaximizeButton.BorderSizePixel = 0
 MaximizeButton.Text = "▼"
-MaximizeButton.TextColor3 = Color3.fromRGB(255, 255, 0)
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 0)
 MaximizeButton.TextScaled = true
 MaximizeButton.Parent = MinimizedFrame
 local MaximizeCorner = Instance.new("UICorner")
@@ -347,8 +351,8 @@ for i, tabName in ipairs(tabs) do
         end
     end)
     if tabName == "Main" then
-        sliders.ESPMobsSlider = createSlider(ContentFrame, "ESP mobs", toggleESPMobs, false, false)
-        sliders.ESPPlayersSlider = createSlider(ContentFrame, "ESP players", toggleESPPlayers, false, false)
+        sliders.ESPMobsSlider = createSlider(ContentFrame, "ESP mobs", funcs.toggleESPMobs, false, false)
+        sliders.ESPPlayersSlider = createSlider(ContentFrame, "ESP players", funcs.toggleESPPlayers, false, false)
         sliders.ESPMobsSlider.Visible = false
         sliders.ESPPlayersSlider.Visible = false
     elseif tabName == "Combat" then
